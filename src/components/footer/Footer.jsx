@@ -1,7 +1,35 @@
 import logo from '../../assets/img/logo/logo.png'
 
-const linkClass = 'mb-[9px] block text-[9px] text-[#87908a] no-underline'
+const linkClass = 'mb-2.5 block text-sm text-[#68766e] no-underline hover:text-[#315c50]'
 
 export default function Footer() {
-  return <footer className="bg-[#f3f0e4] text-[#748078]" id="acesso"><div className="mx-auto grid min-h-[146px] w-[calc(100%-3rem)] max-w-[1020px] grid-cols-[2fr_1fr_1fr] gap-5 py-[30px] max-[760px]:grid-cols-[1.5fr_1fr_1fr] max-[760px]:gap-5 max-[760px]:py-[27px]"><div><a className="inline-flex items-center gap-2 text-[#243d38] no-underline" href="#inicio"><img className="h-9 w-12 object-contain" src={logo} alt="Logo da Monitoria" /><span className="flex flex-col leading-none"><strong className="text-sm font-semibold tracking-[-.3px]">Nome do site</strong><small className="mt-[5px] text-[4px] tracking-[.45px]">MONITORIA ACADÊMICA</small></span></a><p className="mt-4 ml-10 text-[9px] leading-[1.5] max-[760px]:ml-0">Conectando quem quer aprender<br />com quem gosta de ensinar.</p></div><div><h3 className="mt-1 mb-[15px] text-[9px] text-[#243d38]">Explorar</h3><a className={linkClass} href="#encontrar">Encontrar monitoria</a><a className={linkClass} href="#como-funciona">Como funciona</a></div><div><h3 className="mt-1 mb-[15px] text-[9px] text-[#243d38]">Conta</h3><a className={linkClass} href="#entrar">Entrar</a><a className={linkClass} href="#cadastro">Cadastro</a></div></div><div className="border-t border-[#d4d3c8] p-3.5 text-center text-[8px]">© 2026 FATEC Jl.</div></footer>
+  return (
+    <footer className="bg-[#f3f0e4] text-[#68766e]" id="acesso">
+      <div className="mx-auto grid min-h-47.5 w-[calc(100%-3rem)] max-w-255 grid-cols-[2fr_1fr_1fr] gap-8 py-9 max-[760px]:grid-cols-1 max-[760px]:gap-6 max-[760px]:py-8">
+        <div>
+          <a className="inline-flex items-center gap-3 text-[#243d38] no-underline" href="#inicio" aria-label="Monitoria FATEC - início">
+            <img className="h-13.5 w-13.5 object-contain" src={logo} alt="Logo da Monitoria" />
+            <span className="flex flex-col leading-tight">
+              <strong className="text-lg font-semibold tracking-[-.3px]">Nome do site</strong>
+              <small className="mt-1 text-[10px] tracking-[.5px]">MONITORIA ACADÊMICA</small>
+            </span>
+          </a>
+          <p className="mt-3 text-sm leading-[1.6]">
+            Conectando quem quer aprender<br />com quem gosta de ensinar.
+          </p>
+        </div>
+        <div>
+          <h3 className="mt-1 mb-4 text-base font-semibold text-[#243d38]">Explorar</h3>
+          <a className={linkClass} href="#encontrar">Encontrar monitoria</a>
+          <a className={linkClass} href="#como-funciona">Como funciona</a>
+        </div>
+        <div>
+          <h3 className="mt-1 mb-4 text-base font-semibold text-[#243d38]">Conta</h3>
+          <a className={linkClass} href="#entrar">Entrar</a>
+          <a className={linkClass} href="#cadastro">Cadastro</a>
+        </div>
+      </div>
+      <div className="border-t border-[#d4d3c8] p-4 text-center text-xs">© 2026 FATEC ZL.</div>
+    </footer>
+  )
 }
