@@ -1,0 +1,7 @@
+import logo from '../../assets/img/logo/logo.png'
+
+const linkClass = 'mb-[9px] block text-[9px] text-[#87908a] no-underline'
+
+export default function Footer() {
+  return <footer className="bg-[#f3f0e4] text-[#748078]" id="acesso"><div className="mx-auto grid min-h-[146px] w-[calc(100%-3rem)] max-w-[1020px] grid-cols-[2fr_1fr_1fr] gap-5 py-[30px] max-[760px]:grid-cols-[1.5fr_1fr_1fr] max-[760px]:gap-5 max-[760px]:py-[27px]"><div><a className="inline-flex items-center gap-2 text-[#243d38] no-underline" href="#inicio"><img className="h-9 w-12 object-contain" src={logo} alt="Logo da Monitoria" /><span className="flex flex-col leading-none"><strong className="text-sm font-semibold tracking-[-.3px]">Nome do site</strong><small className="mt-[5px] text-[4px] tracking-[.45px]">MONITORIA ACADÊMICA</small></span></a><p className="mt-4 ml-10 text-[9px] leading-[1.5] max-[760px]:ml-0">Conectando quem quer aprender<br />com quem gosta de ensinar.</p></div><div><h3 className="mt-1 mb-[15px] text-[9px] text-[#243d38]">Explorar</h3><a className={linkClass} href="#encontrar">Encontrar monitoria</a><a className={linkClass} href="#como-funciona">Como funciona</a></div><div><h3 className="mt-1 mb-[15px] text-[9px] text-[#243d38]">Conta</h3><a className={linkClass} href="#entrar">Entrar</a><a className={linkClass} href="#cadastro">Cadastro</a></div></div><div className="border-t border-[#d4d3c8] p-3.5 text-center text-[8px]">© 2026 FATEC Jl.</div></footer>
+}
