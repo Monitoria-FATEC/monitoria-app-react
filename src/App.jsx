@@ -1,4 +1,7 @@
-export default function App() {
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import PreCadastro from "./pages/home/usuario/PreCadastro";
+
+function Home() {
   return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">
       <div className="bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-700 max-w-md w-full text-center">
@@ -13,5 +16,16 @@ export default function App() {
         </button>
       </div>
     </div>
-  )
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/pre-cadastro" element={<PreCadastro />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
