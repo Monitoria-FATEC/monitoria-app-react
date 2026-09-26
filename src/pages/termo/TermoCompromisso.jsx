@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import SignatureCanvas from 'react-signature-canvas'
 
 import { enviarTermoCompromisso } from '../../api/monitorApi'
 import { cursosFatecZonaLeste } from '../../data/cursosFatecZonaLeste'
@@ -37,7 +38,7 @@ function Campo({ label, hint, children }) {
 
 function Secao({ eyebrow, title, description, children }) {
   return (
-    <fieldset className="grid gap-4.25 rounded-[16px] border border-[#e1e7df] bg-white p-5.5 sm:p-7">
+    <fieldset className="grid gap-4.25 rounded-2xl border border-[#e1e7df] bg-white p-5.5 sm:p-7">
       <div>
         <span className="mb-1.5 block text-[11px] font-extrabold tracking-[.16em] text-[#769c8d]">
           {eyebrow}
@@ -91,6 +92,14 @@ export default function TermoCompromisso() {
   const [enviado, setEnviado] = useState(false)
   const [erro, setErro] = useState(null)
 
+  const sigPadRef = useRef(null)
+  const [assinaturaVazia, setAssinaturaVazia] = useState(true)
+
+  function handleLimparAssinatura() {
+    sigPadRef.current?.clear()
+    setAssinaturaVazia(true)
+  }
+
   function handleChange(event) {
     const { name, value } = event.target
 
@@ -136,6 +145,10 @@ export default function TermoCompromisso() {
       return 'A data final do período letivo não pode ser anterior à data inicial.'
     }
 
+    if (!sigPadRef.current || sigPadRef.current.isEmpty()) {
+      return 'Assine no campo de assinatura antes de enviar o termo.'
+    }
+
     return null
   }
 
@@ -153,9 +166,14 @@ export default function TermoCompromisso() {
     setErro(null)
 
     try {
+      const assinaturaEstudante = sigPadRef.current
+        .getTrimmedCanvas()
+        .toDataURL('image/png')
+
       await enviarTermoCompromisso({
         ...termo,
         unidade: UNIDADE_FATEC,
+        assinaturaEstudante,
       })
 
       setEnviado(true)
@@ -173,7 +191,7 @@ export default function TermoCompromisso() {
   if (enviado) {
     return (
       <main className="grid min-h-screen place-items-center bg-[#f7f6ef] px-6">
-        <div className="w-full max-w-107.5 rounded-[16px] border border-[#e1e7df] bg-white p-8 text-center shadow-[0_18px_46px_rgba(39,70,59,.08)]">
+        <div className="w-full max-w-107.5 rounded-2xl border border-[#e1e7df] bg-white p-8 text-center shadow-[0_18px_46px_rgba(39,70,59,.08)]">
           <span
             className="mx-auto mb-5 flex h-15 w-15 items-center justify-center rounded-full bg-[#eaf3e9] text-3xl text-[#315c50]"
             aria-hidden="true"
@@ -186,9 +204,9 @@ export default function TermoCompromisso() {
           </h1>
 
           <p className="m-0 text-sm leading-relaxed text-[#68766e]">
-            Seus dados foram registrados. O(a) professor(a) orientador(a) e
-            o(a) coordenador(a) do curso serão notificados para a etapa de
-            assinatura do Termo de Compromisso de Monitoria.
+            Sua assinatura foi registrada. O(a) professor(a) orientador(a) e
+            o(a) coordenador(a) do curso ainda precisam assinar para
+            finalizar o Termo de Compromisso de Monitoria.
           </p>
 
           <Link
@@ -223,10 +241,9 @@ export default function TermoCompromisso() {
           </h1>
 
           <p className="mt-3 max-w-130 text-sm leading-relaxed text-[#68766e]">
-            Confirme os dados abaixo exatamente como devem constar no Termo
-            de Compromisso do Programa de Monitoria de Disciplina da{' '}
-            {UNIDADE_FATEC}. As assinaturas serão coletadas em uma etapa
-            seguinte.
+            Confirme os dados abaixo e assine ao final para formalizar seu
+            compromisso com o Programa de Monitoria de Disciplina da{' '}
+            {UNIDADE_FATEC}.
           </p>
         </div>
 
@@ -477,6 +494,39 @@ export default function TermoCompromisso() {
                 placeholder="Ex.: 3"
               />
             </Campo>
+          </Secao>
+
+          <Secao
+            eyebrow="ASSINATURA"
+            title="Assinatura do(a) monitor(a)"
+            description="Assine no campo abaixo para confirmar o compromisso descrito neste Termo."
+          >
+            <div className="sm:col-span-2">
+              <SignatureCanvas
+                ref={sigPadRef}
+                penColor="#243d38"
+                canvasProps={{
+                  className:
+                    'h-40 w-full rounded-[9px] border border-[#d7e0d6] bg-white',
+                }}
+                onEnd={() => setAssinaturaVazia(false)}
+              />
+
+              <div className="mt-2.5 flex items-center justify-between">
+                <span className="text-[11px] text-[#88958d]">
+                  Assine com o mouse ou o dedo (em telas touch).
+                </span>
+
+                <button
+                  className="text-xs font-bold text-[#68766e] underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  type="button"
+                  onClick={handleLimparAssinatura}
+                  disabled={assinaturaVazia}
+                >
+                  Limpar assinatura
+                </button>
+              </div>
+            </div>
           </Secao>
 
           <button
