@@ -54,7 +54,7 @@ export default function Navbar({ buttonBase }) {
       <div className="flex shrink-0 items-center gap-5 max-[900px]:gap-3 max-[760px]:ml-auto">
         <a
           className="text-sm text-[#5f6964] no-underline max-[760px]:hidden"
-          href="#entrar"
+          href="/cadastro/termo"
         >
           Entrar
         </a>
