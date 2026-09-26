@@ -1,9 +1,14 @@
 import { useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import SignatureCanvas from 'react-signature-canvas'
+import SignatureCanvasImport from 'react-signature-canvas'
 
 import { enviarTermoCompromisso } from '../../api/monitorApi'
 import { cursosFatecZonaLeste } from '../../data/cursosFatecZonaLeste'
+
+const SignatureCanvas =
+  typeof SignatureCanvasImport === 'function'
+    ? SignatureCanvasImport
+    : SignatureCanvasImport.default
 
 const UNIDADE_FATEC = 'Fatec Zona Leste'
 
