@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { cadastrarMonitor } from '../../api/monitorApi'
 import { cursosFatecZonaLeste } from '../../data/cursosFatecZonaLeste'
@@ -14,9 +15,9 @@ const campoClassName =
   'w-full rounded-[9px] border border-[#d7e0d6] bg-[#fbfcfa] px-3.5 py-3 text-[13px] text-[#243d38] outline-none placeholder:text-[#a2ada5] focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15'
 
 export default function MonitorSignupForm() {
+  const navigate = useNavigate()
   const [formulario, setFormulario] = useState(formularioInicial)
   const [enviando, setEnviando] = useState(false)
-  const [mensagem, setMensagem] = useState(null)
   const [erro, setErro] = useState(null)
 
   function handleChange(event) {
@@ -31,13 +32,11 @@ export default function MonitorSignupForm() {
 
     setEnviando(true)
     setErro(null)
-    setMensagem(null)
 
     try {
-      const resultado = await cadastrarMonitor(formulario)
+      await cadastrarMonitor(formulario)
 
-      setMensagem(`Cadastro enviado! Status: ${resultado.status}`)
-      setFormulario(formularioInicial)
+      navigate('/cadastro/termo', { state: formulario })
     } catch (requestError) {
       setErro(
         'Não foi possível enviar o cadastro. Confira os dados e tente novamente.'
@@ -135,12 +134,6 @@ export default function MonitorSignupForm() {
 
         <span aria-hidden="true">→</span>
       </button>
-
-      {mensagem && (
-        <p className="m-0 text-xs text-[#2d7650]" role="status">
-          {mensagem}
-        </p>
-      )}
 
       {erro && (
         <p className="m-0 text-xs text-[#a34d46]" role="alert">
