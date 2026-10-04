@@ -53,12 +53,12 @@ export default function PreCadastro() {
 
           <div className="mt-8 border-t border-[#d6ded5] pt-6 text-center text-sm text-[#68766e]">
             Já tem uma conta?{' '}
-            <a
+            <Link
               className="font-medium text-[#315c50] underline decoration-[#315c50]/40 underline-offset-4 hover:decoration-[#315c50]"
-              href="#entrar"
+              to="/entrar"
             >
               Entrar
-            </a>
+            </Link>
           </div>
         </div>
       </section>
