@@ -9,3 +9,8 @@ export async function enviarTermoCompromisso(dados) {
   const response = await axiosClient.post("/termos-compromisso", dados);
   return response.data;
 }
+
+export async function autenticarMonitor(dados) {
+  const response = await axiosClient.post("/auth/login", dados);
+  return response.data;
+}
