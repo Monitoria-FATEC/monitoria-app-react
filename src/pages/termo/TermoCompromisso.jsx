@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import SignatureCanvasImport from 'react-signature-canvas'
 
+import { criarInscricao } from '../../api/inscricaoApi'
 import { enviarTermoCompromisso } from '../../api/monitorApi'
 import { cursosFatecZonaLeste } from '../../data/cursosFatecZonaLeste'
 
@@ -96,6 +97,7 @@ export default function TermoCompromisso() {
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [erro, setErro] = useState(null)
+  const [termoId, setTermoId] = useState(null)
 
   const sigPadRef = useRef(null)
   const [assinaturaVazia, setAssinaturaVazia] = useState(true)
@@ -126,6 +128,10 @@ export default function TermoCompromisso() {
   }
 
   function validar() {
+    if (!dadosPreCadastro.idMonitor) {
+      return 'Faça o cadastro antes de enviar o termo.'
+    }
+
     const cpfLimpo = termo.cpf.replace(/\D/g, '')
 
     if (cpfLimpo.length !== 11) {
@@ -170,21 +176,43 @@ export default function TermoCompromisso() {
     setEnviando(true)
     setErro(null)
 
-    try {
-      const assinaturaEstudante = sigPadRef.current
-        .getTrimmedCanvas()
-        .toDataURL('image/png')
+    let termoSalvo = false
 
-      await enviarTermoCompromisso({
-        ...termo,
-        unidade: UNIDADE_FATEC,
-        assinaturaEstudante,
+    try {
+      let idTermo = termoId
+
+      if (!idTermo) {
+        const assinaturaEstudante = sigPadRef.current
+          .getTrimmedCanvas()
+          .toDataURL('image/png')
+
+        const termoCriado = await enviarTermoCompromisso({
+          ...termo,
+          unidade: UNIDADE_FATEC,
+          assinaturaEstudante,
+        })
+
+        idTermo = termoCriado?.id
+        setTermoId(idTermo ?? null)
+      }
+
+      termoSalvo = Boolean(idTermo)
+
+      if (!idTermo) {
+        throw new Error('A resposta do termo não trouxe o id.')
+      }
+
+      await criarInscricao({
+        idMonitor: dadosPreCadastro.idMonitor,
+        idTermoCompromisso: idTermo,
       })
 
       setEnviado(true)
     } catch (requestError) {
       setErro(
-        'Não foi possível enviar o termo. Confira os dados e tente novamente.'
+        termoSalvo
+          ? 'Seu termo foi salvo, mas não foi possível concluir o envio da inscrição. Clique em enviar novamente para tentar de novo.'
+          : 'Não foi possível enviar o termo. Confira os dados e tente novamente.'
       )
 
       console.error(requestError)

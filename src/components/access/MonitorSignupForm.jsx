@@ -78,9 +78,11 @@ export default function MonitorSignupForm() {
     }
 
     try {
-      await cadastrarMonitor(dadosMonitor)
+      const monitor = await cadastrarMonitor(dadosMonitor)
 
-      navigate('/cadastro/termo', { state: dadosMonitor })
+      navigate('/cadastro/termo', {
+        state: { ...dadosMonitor, idMonitor: monitor?.id },
+      })
     } catch (requestError) {
       setErro(
         'Sua conta foi criada, mas não foi possível concluir o cadastro. Tente novamente em instantes ou entre com seu e-mail e senha.'
