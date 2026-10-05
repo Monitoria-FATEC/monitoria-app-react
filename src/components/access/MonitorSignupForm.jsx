@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { cadastrarMonitor } from '../../api/monitorApi'
+import {
+  autenticarMonitor,
+  cadastrarConta,
+  cadastrarMonitor,
+} from '../../api/monitorApi'
+import { salvarSessao } from '../../services/authStorage'
 import { cursosFatecZonaLeste } from '../../data/cursosFatecZonaLeste'
 
 const formularioInicial = {
@@ -9,6 +14,7 @@ const formularioInicial = {
   ra: '',
   email: '',
   curso: '',
+  senha: '',
 }
 
 const campoClassName =
@@ -33,13 +39,51 @@ export default function MonitorSignupForm() {
     setEnviando(true)
     setErro(null)
 
-    try {
-      await cadastrarMonitor(formulario)
+    // A senha só vai para a criação da conta: nunca para /monitores
+    // nem para o state da navegação.
+    const { senha, ...dadosMonitor } = formulario
 
-      navigate('/cadastro/termo', { state: formulario })
+    try {
+      await cadastrarConta({
+        nome: dadosMonitor.nome,
+        email: dadosMonitor.email,
+        senha,
+      })
+    } catch (requestError) {
+      if (requestError.response?.status === 409) {
+        setErro(
+          'Este e-mail já possui conta. Entre com ela ou use outro e-mail.'
+        )
+      } else {
+        setErro(
+          'Não foi possível criar sua conta. Confira os dados e tente novamente.'
+        )
+      }
+
+      console.error(requestError)
+      setEnviando(false)
+      return
+    }
+
+    // Entra automaticamente com a conta recém-criada (não bloqueia o fluxo se falhar).
+    try {
+      const resposta = await autenticarMonitor({
+        email: dadosMonitor.email,
+        senha,
+      })
+
+      salvarSessao({ token: resposta.token, usuario: resposta.usuario })
+    } catch (requestError) {
+      console.error(requestError)
+    }
+
+    try {
+      await cadastrarMonitor(dadosMonitor)
+
+      navigate('/cadastro/termo', { state: dadosMonitor })
     } catch (requestError) {
       setErro(
-        'Não foi possível enviar o cadastro. Confira os dados e tente novamente.'
+        'Sua conta foi criada, mas não foi possível concluir o cadastro. Tente novamente em instantes ou entre com seu e-mail e senha.'
       )
 
       console.error(requestError)
@@ -120,10 +164,21 @@ export default function MonitorSignupForm() {
         </select>
       </label>
 
-      <p className="m-[-2px_0_0] text-[11px] leading-relaxed text-[#88958d]">
-        A senha e o cadastro de alunos serão implementados em uma próxima
-        etapa.
-      </p>
+      <label className="grid gap-1.5">
+        <span className="text-xs font-bold text-[#39544c]">Senha</span>
+
+        <input
+          className={campoClassName}
+          type="password"
+          name="senha"
+          value={formulario.senha}
+          onChange={handleChange}
+          required
+          minLength={6}
+          autoComplete="new-password"
+          placeholder="Mínimo de 6 caracteres"
+        />
+      </label>
 
       <button
         className="flex items-center justify-between rounded-[9px] border-0 bg-[#0d3524] px-4.25 py-3.75 text-sm font-bold text-white transition hover:-translate-y-px hover:bg-[#315c50] disabled:cursor-wait disabled:opacity-60"

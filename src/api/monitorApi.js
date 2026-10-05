@@ -14,3 +14,13 @@ export async function autenticarMonitor(dados) {
   const response = await axiosClient.post("/auth/login", dados);
   return response.data;
 }
+
+// Cria a conta de acesso (e-mail + senha). Perfil inicial: MONITOR.
+export async function cadastrarConta({ nome, email, senha }) {
+  const response = await axiosClient.post("/auth/cadastro", {
+    nome,
+    email,
+    senha,
+  });
+  return response.data;
+}

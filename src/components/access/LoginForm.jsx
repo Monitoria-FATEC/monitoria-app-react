@@ -1,6 +1,11 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { autenticarMonitor } from '../../api/monitorApi'
+import {
+  rotaInicialPorPerfil,
+  salvarSessao,
+} from '../../services/authStorage'
 
 const formularioInicial = {
   email: '',
@@ -14,11 +19,10 @@ export default function LoginForm() {
   const [formulario, setFormulario] = useState(formularioInicial)
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState(null)
-  const [autenticado, setAutenticado] = useState(false)
+  const navigate = useNavigate()
 
   function handleChange(event) {
     setErro(null)
-    setAutenticado(false)
 
     setFormulario((formularioAtual) => ({
       ...formularioAtual,
@@ -33,13 +37,21 @@ export default function LoginForm() {
     setErro(null)
 
     try {
-      await autenticarMonitor(formulario)
+      const resposta = await autenticarMonitor(formulario)
 
-      setAutenticado(true)
+      salvarSessao({ token: resposta.token, usuario: resposta.usuario })
+
+      navigate(rotaInicialPorPerfil(resposta.usuario?.role), { replace: true })
     } catch (requestError) {
-      setErro(
-        'E-mail ou senha incorretos. Confira os dados e tente novamente.'
-      )
+      if (requestError.response?.status === 401) {
+        setErro(
+          'E-mail ou senha incorretos. Confira os dados e tente novamente.'
+        )
+      } else {
+        setErro(
+          'Não foi possível conectar ao servidor. Tente novamente em instantes.'
+        )
+      }
 
       console.error(requestError)
     } finally {
@@ -80,11 +92,6 @@ export default function LoginForm() {
         />
       </label>
 
-      <p className="m-[-2px_0_0] text-[11px] leading-relaxed text-[#88958d]">
-        O login com autenticação completa ainda está em desenvolvimento —
-        esta tela já está pronta para quando o backend estiver no ar.
-      </p>
-
       <button
         className="flex items-center justify-between rounded-[9px] border-0 bg-[#0d3524] px-4.25 py-3.75 text-sm font-bold text-white transition hover:-translate-y-px hover:bg-[#315c50] disabled:cursor-wait disabled:opacity-60"
         type="submit"
@@ -94,12 +101,6 @@ export default function LoginForm() {
 
         <span aria-hidden="true">→</span>
       </button>
-
-      {autenticado && (
-        <p className="m-0 text-xs text-[#2d7650]" role="status">
-          Login realizado com sucesso!
-        </p>
-      )}
 
       {erro && (
         <p className="m-0 text-xs text-[#a34d46]" role="alert">
