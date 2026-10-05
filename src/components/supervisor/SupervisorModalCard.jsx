@@ -1,18 +1,18 @@
-import { useState } from "react";
 import Button from "./SupervisorButton";
 
-export default function SupervisorModalCard({ form, onClose, onStatusChange }) {
+export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolver, desabilitado }) {
 
     if (!form) return null;
 
-    const { name, ra, status, course, discipline, date, period, signatureDate, termId, email } = form;
+    const { id, name, ra, status, course, discipline, date, period, signatureDate, termId, email, signature, justificativa } = form;
 
     const label = "flex text-xs flex-col font-medium text-gray-400 uppercase mt-2"
     const formData = "text-md font-bold text-[#2E4039]"
+    const bloqueio = desabilitado ? "opacity-50 pointer-events-none" : ""
 
     return (
 
-        <div className={`relative z-50 h-full w-full overflow-y-auto bg-[#FAF9F6] p-6 shadow-xl rounded-xl sm:rounded-l-2xl}`}>
+        <div className="relative z-50 h-full w-full overflow-y-auto bg-[#FAF9F6] p-6 shadow-xl rounded-xl sm:rounded-l-2xl">
             <button 
                 onClick={onClose}
                 className="p-2 cursor-pointer absolute text-xl top-4 right-4 text-gray-400 hover:text-black transition-colors"
@@ -49,10 +49,26 @@ export default function SupervisorModalCard({ form, onClose, onStatusChange }) {
                     </div>
                   </div>
                 </div>
+
+                {status === "devolvido" && justificativa && (
+                  <div className="p-6 border border-red-200 bg-red-50 rounded-2xl mb-4">
+                    <p className="uppercase text-lg text-red-500 mb-2 font-bold">motivo da devolução</p>
+                    <p className="text-[#2E4039]">{justificativa}</p>
+                  </div>
+                )}
+
                 <div className="p-6 border border-gray-200 bg-white rounded-2xl">
                   <p className="uppercase text-lg text-[#939E95] mb-4 font-bold">termo de compromisso - assinatura digital</p>
                   <div className="flex items-center justify-center mb-4 p-6 border border-gray-200 bg-[#FAF9F6] rounded-2xl h-[200px]">
-                    {/* img assinatura */}
+                    {signature ? (
+                      <img
+                        src={signature}
+                        alt={`Assinatura de ${name}`}
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-sm text-gray-400">Assinatura não disponível</span>
+                    )}
                   </div>
                   <span className="text-sm text-gray-400">{signatureDate} · {termId}</span>
                 </div>
@@ -60,9 +76,8 @@ export default function SupervisorModalCard({ form, onClose, onStatusChange }) {
 
             {status === "aguardando" && (
                 <div className="flex gap-2 justify-end mt-8 border-t border-gray-200 pt-4 flex-wrap">
-                    <Button value="encaminhado" onClick={(event) => onStatusChange(event, ra)}>Encaminhar à Gestão</Button>
-                    <Button value="reprovado" variant="reprovar" onClick={(event) => onStatusChange(event, ra)}>Reprovar</Button>
-                    <Button value="aprovado" variant="aprovar" onClick={(event) => onStatusChange(event, ra)}>Aprovar</Button>
+                    <Button variant="reprovar" className={bloqueio} onClick={() => onDevolver(id)}>Devolver</Button>
+                    <Button variant="aprovar" className={bloqueio} onClick={() => onAprovar(id)}>Aprovar e encaminhar à Gestão</Button>
                 </div>
             )}
         </div>
