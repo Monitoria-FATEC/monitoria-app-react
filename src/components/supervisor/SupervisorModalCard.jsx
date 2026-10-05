@@ -1,14 +1,44 @@
+import { lazy, Suspense, useState } from "react";
 import Button from "./SupervisorButton";
+
+// O PDF é pesado: só é carregado quando o supervisor pede para visualizar.
+const TermoPdfModal = lazy(() => import("./TermoPdfModal"));
+
+// Compara textos ignorando maiúsculas, espaços e acentos.
+function normalizar(valor) {
+    return String(valor ?? "")
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
+function Dado({ rotulo, valor }) {
+    return (
+        <div className="flex flex-col gap-1">
+            <p className="flex text-xs flex-col font-medium text-gray-400 uppercase">{rotulo}</p>
+            <span className="text-md font-bold text-[#2E4039] break-words">{valor}</span>
+        </div>
+    );
+}
 
 export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolver, desabilitado }) {
 
+    const [verTermo, setVerTermo] = useState(false);
+
     if (!form) return null;
 
-    const { id, name, ra, status, course, discipline, date, period, signatureDate, termId, email, signature, justificativa } = form;
+    const { id, name, ra, status, course, discipline, date, period, signatureDate, termId, email, signature, justificativa, monitor, termo, termoDados } = form;
 
-    const label = "flex text-xs flex-col font-medium text-gray-400 uppercase mt-2"
-    const formData = "text-md font-bold text-[#2E4039]"
     const bloqueio = desabilitado ? "opacity-50 pointer-events-none" : ""
+
+    // Confere se o que está no cadastro bate com o que está no termo.
+    const divergencias = []
+    if (monitor && termo) {
+        if (normalizar(monitor.nome) !== normalizar(termo.nomeEstudante)) divergencias.push("nome")
+        if (normalizar(monitor.ra) !== normalizar(termo.ra)) divergencias.push("RA")
+        if (normalizar(monitor.curso) !== normalizar(termo.curso)) divergencias.push("curso")
+    }
 
     return (
 
@@ -30,25 +60,46 @@ export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolv
                   </div>
                   <p className="font-bold text-lg">{date}</p>
                 </div>
+
+                {divergencias.length > 0 && (
+                  <div className="p-4 border border-amber-300 bg-amber-50 rounded-2xl mb-4 text-sm text-amber-800" role="alert">
+                    <span className="font-bold">Atenção:</span> {divergencias.join(", ")} do cadastro
+                    {" "}não confere com o que consta no termo. Verifique antes de aprovar.
+                  </div>
+                )}
+
                 <div className="p-6 border border-gray-200 bg-white rounded-2xl mb-4">
-                  <p className="uppercase text-lg text-[#939E95] mb-4 font-bold">dados do candidato</p>
-                  <div className="flex items-start gap-8">
-                    <div className="flex flex-col gap-1 w-1/2">
-                      <p className={label}>RA: </p>
-                      <span className={formData}>{ra}</span>
-                      <p className={label}>disciplina:</p>
-                      <span className={formData}>{discipline}</span>
-                      <p className={label}>e-mail:</p>
-                      <span className={formData}>{email}</span>
-                    </div>
-                    <div className="flex flex-col gap-1 w-1/2">
-                      <p className={label}>curso:</p>
-                      <span className={formData}>{course}</span>
-                      <p className={label}>período:</p>
-                      <span className={formData}>{period}</span>
-                    </div>
+                  <p className="uppercase text-lg text-[#939E95] mb-4 font-bold">dados do cadastro</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Dado rotulo="RA" valor={ra} />
+                    <Dado rotulo="curso" valor={course} />
+                    <Dado rotulo="e-mail" valor={email} />
+                    <Dado rotulo="disciplina" valor={discipline} />
+                    <Dado rotulo="período" valor={period} />
                   </div>
                 </div>
+
+                {termoDados && (
+                  <div className="p-6 border border-gray-200 bg-white rounded-2xl mb-4">
+                    <p className="uppercase text-lg text-[#939E95] mb-4 font-bold">dados do termo de compromisso</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Dado rotulo="nome do estudante" valor={termoDados.nomeEstudante} />
+                      <Dado rotulo="RA" valor={termoDados.ra} />
+                      <Dado rotulo="CPF" valor={termoDados.cpf} />
+                      <Dado rotulo="curso" valor={termoDados.curso} />
+                      <Dado rotulo="disciplina" valor={termoDados.disciplina} />
+                      <Dado rotulo="oferta" valor={termoDados.oferta} />
+                      <Dado rotulo="carga horária" valor={termoDados.cargaHoraria} />
+                      <Dado rotulo="edital nº" valor={termoDados.editalNumero} />
+                      <Dado rotulo="professor orientador" valor={termoDados.nomeProfessor} />
+                      <Dado rotulo="coordenador do curso" valor={termoDados.nomeCoordenador} />
+                      <Dado rotulo="unidade" valor={termoDados.unidade} />
+                      <Dado rotulo="cidade" valor={termoDados.cidade} />
+                      <Dado rotulo="data de assinatura" valor={termoDados.dataAssinatura} />
+                      <Dado rotulo="número de vias" valor={termoDados.numeroVias} />
+                    </div>
+                  </div>
+                )}
 
                 {status === "devolvido" && justificativa && (
                   <div className="p-6 border border-red-200 bg-red-50 rounded-2xl mb-4">
@@ -74,11 +125,24 @@ export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolv
                 </div>
             </div>
 
-            {status === "aguardando" && (
+            {(termo || status === "aguardando") && (
                 <div className="flex gap-2 justify-end mt-8 border-t border-gray-200 pt-4 flex-wrap">
-                    <Button variant="reprovar" className={bloqueio} onClick={() => onDevolver(id)}>Devolver</Button>
-                    <Button variant="aprovar" className={bloqueio} onClick={() => onAprovar(id)}>Aprovar e encaminhar à Gestão</Button>
+                    {termo && (
+                        <Button onClick={() => setVerTermo(true)}>Visualizar termo (PDF)</Button>
+                    )}
+                    {status === "aguardando" && (
+                        <>
+                            <Button variant="reprovar" className={bloqueio} onClick={() => onDevolver(id)}>Devolver</Button>
+                            <Button variant="aprovar" className={bloqueio} onClick={() => onAprovar(id)}>Aprovar e encaminhar à Gestão</Button>
+                        </>
+                    )}
                 </div>
+            )}
+
+            {verTermo && termo && (
+                <Suspense fallback={null}>
+                    <TermoPdfModal termo={termo} onClose={() => setVerTermo(false)} />
+                </Suspense>
             )}
         </div>
     );

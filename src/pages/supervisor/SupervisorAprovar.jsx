@@ -16,6 +16,8 @@ const statusData = [
     { id: "devolvido", title: "Devolvidos", backend: "DEVOLVIDA" },
 ];
 
+const ofertaRotulo = { anual: "Anual", semestral: "Semestral" };
+
 // O back devolve datas sem fuso ("2026-09-29" ou "2026-09-29T17:04:06"),
 // então formatamos pelo texto para não deslocar o dia.
 function formatarData(valor) {
@@ -28,6 +30,10 @@ function formatarDataHora(valor) {
     if (!valor) return "—";
     const [, hora] = String(valor).split("T");
     return hora ? `${formatarData(valor)} às ${hora.slice(0, 5)}` : formatarData(valor);
+}
+
+function ou(valor) {
+    return valor === null || valor === undefined || valor === "" ? "—" : valor;
 }
 
 // Converte a inscrição do back no formato que os cards já usam.
@@ -52,6 +58,27 @@ function paraForm(inscricao, tabId) {
         termId: termo?.id ? `#${termo.id.slice(0, 8)}` : "—",
         signature: termo?.assinaturaEstudante ?? null,
         justificativa: inscricao.justificativaDevolucao ?? null,
+        monitor: monitor ?? null,
+        termo: termo ?? null,
+        termoDados: termo
+            ? {
+                nomeEstudante: ou(termo.nomeEstudante),
+                ra: ou(termo.ra),
+                cpf: ou(termo.cpf),
+                curso: ou(termo.curso),
+                disciplina: ou(termo.disciplina),
+                oferta: ofertaRotulo[termo.oferta] ?? ou(termo.oferta),
+                cargaHoraria:
+                    termo.cargaHoraria != null ? `${termo.cargaHoraria}h semanais` : "—",
+                editalNumero: ou(termo.editalNumero),
+                nomeProfessor: ou(termo.nomeProfessor),
+                nomeCoordenador: ou(termo.nomeCoordenador),
+                unidade: ou(termo.unidade),
+                cidade: ou(termo.cidade),
+                dataAssinatura: formatarData(termo.dataAssinatura),
+                numeroVias: ou(termo.numeroVias),
+            }
+            : null,
     };
 }
 
