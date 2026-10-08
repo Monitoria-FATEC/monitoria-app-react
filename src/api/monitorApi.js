@@ -24,3 +24,27 @@ export async function cadastrarConta({ nome, email, senha }) {
   });
   return response.data;
 }
+
+export async function buscarDashboardMonitor() {
+  const response = await axiosClient.get('/monitores/me/dashboard')
+  return response.data
+}
+
+export async function salvarContaAgencia(dados) {
+  const response = await axiosClient.put('/monitores/me/conta-agencia', dados)
+  return response.data
+}
+
+export async function salvarPerfilMonitor(dados) {
+  const response = await axiosClient.put('/monitores/me/perfil', dados)
+  return response.data
+}
+
+export async function desativarPerfilMonitor() {
+  await axiosClient.patch('/monitores/me/desativar')
+}
+
+export async function atualizarTermoCompromisso(id, dados) {
+  const response = await axiosClient.put(`/termos-compromisso/${id}`, dados)
+  return response.data
+}

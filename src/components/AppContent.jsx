@@ -7,6 +7,7 @@ import SupervisorPainel from '../pages/supervisor/SupervisorPainel'
 import { supervisorRoutes } from '../routes/supervisorRoutes'
 import SupervisorHome from '../pages/supervisor/SupervisorHome'
 import RotaProtegida from './auth/RotaProtegida'
+import MonitorDashboard from '../pages/monitor/MonitorDashboard'
 
 export default function AppContent() {
   return (
@@ -16,6 +17,14 @@ export default function AppContent() {
         <Route path="/cadastro" element={<PreCadastro />} />
         <Route path="/cadastro/termo" element={<TermoCompromisso />} />
         <Route path="/entrar" element={<Login />} />
+        <Route
+          path="/monitor"
+          element={
+            <RotaProtegida perfis={['MONITOR']}>
+              <MonitorDashboard />
+            </RotaProtegida>
+          }
+        />
         <Route
           path="/supervisor"
           element={

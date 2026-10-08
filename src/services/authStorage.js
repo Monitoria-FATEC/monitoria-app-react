@@ -30,6 +30,7 @@ export function rotaInicialPorPerfil(role) {
       return '/supervisor'
     case 'GESTAO':
     case 'MONITOR':
+      return '/monitor'
     default:
       return '/'
   }
