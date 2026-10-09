@@ -7,7 +7,7 @@ export default function SupervisorMenu() {
     return(
 
     <aside className="w-64 bg-[#E9F0E5] h-screen sticky top-0 px-6 py-8 shrink-0">
-        <NavLink to="/supervisor" className="inline-flex items-center gap-3 text-[#243d38] no-underline">
+        <NavLink to="/" className="inline-flex items-center gap-3 text-[#243d38] no-underline">
           <img className="h-14 w-14 object-contain" src={logo} alt="Logo da Monitoria" />
           <span className="flex flex-col leading-tight">
             <strong className="text-lg font-semibold tracking-[-.3px]">Nome do site</strong>
@@ -22,7 +22,7 @@ export default function SupervisorMenu() {
                 to={r.index ? '/supervisor' : `/supervisor/${r.path}`}
                 end={r.index}
                 className={({ isActive }) =>
-                  `p-2 rounded-lg block  ${isActive ? 'font-bold bg-white shadow-md text-[#2E4D42]' : 'bg-none text-[#7E8B81]'}`
+                  `p-2 rounded-lg block transition-all ${isActive ? 'font-bold bg-white shadow-md text-[#2E4D42]' : 'bg-none text-[#7E8B81]'}`
                 }
               >
                 {r.label}
