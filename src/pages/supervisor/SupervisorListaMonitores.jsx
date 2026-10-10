@@ -242,6 +242,8 @@ export default function SupervisorListaMonitores() {
             onAlternarAtivo={() => handleAlternarAtivo(monitor)}
             onNovaSenha={() => setMonitorNovaSenha(monitor)}
             onExcluir={() => setMonitorParaExcluir(monitor)}
+            // Passando como callback para não executar direto na renderização
+            onDelete={() => handleSolicitarExclusao(monitor._id)}
           />
         ))}
       </div>
@@ -279,6 +281,18 @@ export default function SupervisorListaMonitores() {
         monitor={monitorNovaSenha}
         onFechar={() => setMonitorNovaSenha(null)}
       />
+
+      {modalOpen && (
+        <ConformationModal 
+          titulo="Excluir Monitor" 
+          descricao="Tem certeza que deseja excluir este monitor?" 
+          onCancel={() => {
+            setModalOpen(false);
+            setIdParaExcluir(null);
+          }} 
+          onConfirm={handleConfirmarExclusao}
+        />
+      )}
     </div>
   );
 }

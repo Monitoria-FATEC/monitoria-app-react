@@ -6,6 +6,7 @@ export default function MonitorCardModal({ monitor, onClose, onSave }) {
   const dataCriacao = monitor?.dataCriacao
     ? new Date(monitor.dataCriacao).toLocaleDateString("pt-BR")
     : "—";
+    
   const [formulario, setFormulario] = useState(() => ({
     nome: monitor?.nome ?? "",
     ra: monitor?.ra ?? "",
