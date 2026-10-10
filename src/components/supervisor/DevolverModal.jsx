@@ -39,7 +39,7 @@ export default function DevolverModal({ form, enviando, onConfirmar, onCancelar 
                 </p>
 
                 <label className="mt-4 flex flex-col gap-1.5">
-                    <span className="text-xs font-bold uppercase text-gray-400">
+                    <span className="text-xs font-bold uppercase text-gray-500">
                         Motivo da devolução
                     </span>
                     <textarea
@@ -55,6 +55,11 @@ export default function DevolverModal({ form, enviando, onConfirmar, onCancelar 
                     <span className="self-end text-xs text-gray-400">
                         {justificativa.length}/{LIMITE}
                     </span>
+                </label>
+
+                <label className="mt-4 flex flex-col gap-1.5 w-fit">
+                    <span className="text-xs font-bold uppercase text-gray-500">Prazo de devolução</span>
+                    <input className="rounded-xl border border-gray-200 bg-white p-3 text-sm text-[#2E4039] outline-none placeholder:text-[#a2ada5] focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15" type="date" />
                 </label>
 
                 <div className="mt-6 flex flex-wrap justify-end gap-2 border-t border-gray-200 pt-4">

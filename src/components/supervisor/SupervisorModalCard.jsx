@@ -42,15 +42,19 @@ export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolv
 
     return (
 
-        <div className="relative z-50 h-full w-full overflow-y-auto bg-[#FAF9F6] p-6 shadow-xl rounded-xl sm:rounded-l-2xl">
-            <button 
-                onClick={onClose}
-                className="p-2 cursor-pointer absolute text-xl top-4 right-4 text-gray-400 hover:text-black transition-colors"
-            >
-                ✕
-            </button>
-            <h2 className="text-2xl font-bold pb-4 border-b border-gray-200">Detalhes da Ficha de Inscrição</h2>
-            <div className="my-8">
+        <div className="relative z-50 flex h-full w-full flex-col overflow-hidden rounded-xl bg-[#FAF9F6] shadow-xl sm:rounded-l-2xl">
+            <div className="relative flex shrink-0 items-center justify-between border-b border-gray-200 p-6">
+                <h2 className="text-2xl font-bold">Detalhes da Ficha de Inscrição</h2>
+                <button 
+                    type="button"
+                    onClick={onClose}
+                    aria-label="Fechar detalhes da ficha"
+                    className="cursor-pointer p-2 text-xl text-gray-400 transition-colors hover:text-black"
+                >
+                    ✕
+                </button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-full bg-gray-500">
@@ -126,7 +130,7 @@ export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolv
             </div>
 
             {(termo || status === "aguardando") && (
-                <div className="flex gap-2 justify-end mt-8 border-t border-gray-200 pt-4 flex-wrap">
+                <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-gray-200 p-6">
                     {termo && (
                         <Button onClick={() => setVerTermo(true)}>Visualizar termo (PDF)</Button>
                     )}

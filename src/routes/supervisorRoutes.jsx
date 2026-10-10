@@ -1,4 +1,5 @@
 import SupervisorAprovar from "../pages/supervisor/SupervisorAprovar";
+import SupervisorContaBanco from "../pages/supervisor/SupervisorContaBanco";
 import SupervisorHome from "../pages/supervisor/SupervisorHome";
 import SupervisorListaMonitores from "../pages/supervisor/SupervisorListaMonitores";
 
@@ -26,6 +27,14 @@ export const supervisorRoutes = [
     subtitulo: 'Gerencie os monitores cadastrados',
     desc: 'Controle os perfis dos monitores, verifique os dados, edite ou exclua.',
     element: <SupervisorListaMonitores />,
+  },
+  {
+    path: 'contas-bancarias',
+    label: 'Contas Bancárias',
+    titulo: 'Formulários de Contas Bancárias',
+    subtitulo: 'Gerencie as informações de contas bancárias',
+    desc: 'Controle os dados dos formulparios das contas bancárias dos monitores, verifique os dados, edite ou exclua.',
+    element: <SupervisorContaBanco />,
   }
 
 ]
