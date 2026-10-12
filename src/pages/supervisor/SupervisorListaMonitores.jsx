@@ -249,6 +249,7 @@ export default function SupervisorListaMonitores() {
       </div>
 
       <MonitorCardModal
+        key={monitorSelecionado?._id ?? "fechado"}
         monitor={monitorSelecionado}
         onClose={() => setMonitorSelecionado(null)}
         onSave={handleSalvarMonitor}
