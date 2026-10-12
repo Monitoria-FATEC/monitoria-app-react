@@ -88,6 +88,15 @@ export default function SupervisorListaMonitores() {
     setIdParaExcluir(null);
   }
 
+  function handleSalvarMonitor(monitorAtualizado) {
+    setMonitores((prevMonitores) =>
+      prevMonitores.map((monitor) =>
+        monitor._id === monitorAtualizado._id ? monitorAtualizado : monitor
+      )
+    );
+    setMonitorSelecionado(null);
+  }
+
   const filterMonitores = monitores.filter((monitor) => monitor.role === "MONITOR");
 
   return (
@@ -95,7 +104,7 @@ export default function SupervisorListaMonitores() {
       <div className="py-2 border-b border-gray-200">
         <SearchBar />
       </div>
-      <div className="grid grid-cols-3 gap-4 p-6">
+      <div className="grid grid-cols-3 gap-4 py-6">
         {filterMonitores.map((monitor) => (
           <MonitorCard
             key={monitor._id}
@@ -108,8 +117,10 @@ export default function SupervisorListaMonitores() {
       </div>
 
       <MonitorCardModal
+        key={monitorSelecionado?._id ?? "fechado"}
         monitor={monitorSelecionado}
         onClose={() => setMonitorSelecionado(null)}
+        onSave={handleSalvarMonitor}
       />
 
       {modalOpen && (
