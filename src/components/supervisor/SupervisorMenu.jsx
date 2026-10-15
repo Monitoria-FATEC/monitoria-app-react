@@ -22,9 +22,10 @@ export default function SupervisorMenu() {
                 to={r.index ? '/supervisor' : `/supervisor/${r.path}`}
                 end={r.index}
                 className={({ isActive }) =>
-                  `p-2 rounded-lg block transition-all ${isActive ? 'font-bold bg-white shadow-md text-[#2E4D42]' : 'bg-none text-[#7E8B81]'}`
+                  `flex items-center gap-2 p-2 rounded-lg transition-all ${isActive ? 'font-bold bg-white shadow-md text-[#2E4D42]' : 'bg-none text-[#7E8B81]'}`
                 }
               >
+                {r.icon}
                 {r.label}
               </NavLink>
             </li>

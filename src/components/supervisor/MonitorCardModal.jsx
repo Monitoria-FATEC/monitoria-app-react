@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./SupervisorButton";
 
 export default function MonitorCardModal({ monitor, onClose, onSave }) {
@@ -10,8 +10,21 @@ export default function MonitorCardModal({ monitor, onClose, onSave }) {
     nome: monitor?.nome ?? "",
     ra: monitor?.ra ?? "",
     email: monitor?.email ?? "",
+    agencia: monitor?.agencia ?? "",
+    conta: monitor?.conta ?? "",
     ativo: monitor?.ativo ?? false,
   }));
+
+  useEffect(() => {
+    setFormulario({
+      nome: monitor?.nome ?? "",
+      ra: monitor?.ra ?? "",
+      email: monitor?.email ?? "",
+      agencia: monitor?.agencia ?? "",
+      conta: monitor?.conta ?? "",
+      ativo: monitor?.ativo ?? false,
+    });
+  }, [monitor]);
 
   function handleChange(event) {
     const { name, type, checked, value } = event.target;
@@ -109,6 +122,30 @@ export default function MonitorCardModal({ monitor, onClose, onSave }) {
                         value={formulario.email}
                         onChange={handleChange}
                         required
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="text-xs font-bold uppercase text-gray-500">
+                        Agência
+                      </span>
+                      <input
+                        className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-[#2E4039] outline-none focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15"
+                        type="text"
+                        name="agencia"
+                        value={formulario.agencia}
+                        onChange={handleChange}
+                      />
+                    </label>
+                    <label className="flex flex-col gap-1">
+                      <span className="text-xs font-bold uppercase text-gray-500">
+                        Conta
+                      </span>
+                      <input
+                        className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-[#2E4039] outline-none focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15"
+                        type="text"
+                        name="conta"
+                        value={formulario.conta}
+                        onChange={handleChange}
                       />
                     </label>
                     <label className="flex items-center gap-3 font-medium text-[#2E4039]">

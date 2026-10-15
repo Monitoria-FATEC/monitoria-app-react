@@ -42,7 +42,7 @@ export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolv
 
     return (
 
-        <div className="relative z-50 flex h-full w-full flex-col overflow-hidden rounded-xl bg-[#FAF9F6] shadow-xl sm:rounded-l-2xl">
+        <div className="relative z-50 flex h-full w-full flex-col overflow-hidden rounded-xl bg-[#FAF9F6] shadow-xl sm:rounded-l-2xl transition-transform duration-300 ease-in-out">
             <div className="relative flex shrink-0 items-center justify-between border-b border-gray-200 p-6">
                 <h2 className="text-2xl font-bold">Detalhes da Ficha de Inscrição</h2>
                 <button 

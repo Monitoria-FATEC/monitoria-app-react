@@ -9,7 +9,6 @@ export default function SupervisorListaMonitores() {
   const [modalOpen, setModalOpen] = useState(false);
   const [idParaExcluir, setIdParaExcluir] = useState(null);
 
-  // 1. Transformado em State para que o React atualize a tela ao remover
   const [monitores, setMonitores] = useState([
     {
       _id: "6ac31607b499a5e7e834f3b",
@@ -19,7 +18,9 @@ export default function SupervisorListaMonitores() {
       role: "MONITOR",
       ativo: true,
       dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario"
+      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
+      agencia: "0001",
+      conta: "12345-6"
     },
     {
       _id: "6ac31607b499a5e7e834f3c",
@@ -29,7 +30,9 @@ export default function SupervisorListaMonitores() {
       role: "MONITOR",
       ativo: true,
       dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario"
+      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
+      agencia: "0001",
+      conta: "23456-7"
     },
     {
       _id: "6ac31607b499a5e7e834f3d",
@@ -39,7 +42,9 @@ export default function SupervisorListaMonitores() {
       role: "MONITOR",
       ativo: false,
       dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario"
+      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
+      agencia: "0001",
+      conta: "34567-8"
     },
     {
       _id: "6ac31607b499a5e7e834f3e",
@@ -49,7 +54,9 @@ export default function SupervisorListaMonitores() {
       role: "ADMIN",
       ativo: true,
       dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario"
+      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
+      agencia: "0002",
+      conta: "45678-9"
     },
     {
       _id: "6ac31607b499a5e7e834f3f",
@@ -59,7 +66,9 @@ export default function SupervisorListaMonitores() {
       role: "SUPERVISOR",
       ativo: true,
       dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario"
+      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
+      agencia: "0002",
+      conta: "56789-0"
     },
     {
       _id: "6ac31607b499a5e7e834f40",
@@ -69,7 +78,9 @@ export default function SupervisorListaMonitores() {
       role: "GESTAO",
       ativo: true,
       dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario"
+      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
+      agencia: "0002",
+      conta: "67890-1"
     }
   ]);
 
@@ -104,36 +115,33 @@ export default function SupervisorListaMonitores() {
       <div className="py-2 border-b border-gray-200">
         <SearchBar />
       </div>
-      <div className="grid grid-cols-3 gap-4 py-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 py-6">
         {filterMonitores.map((monitor) => (
           <MonitorCard
             key={monitor._id}
             form={monitor}
             onClick={() => setMonitorSelecionado(monitor)}
-            // Passando como callback para não executar direto na renderização
             onDelete={() => handleSolicitarExclusao(monitor._id)}
           />
         ))}
       </div>
 
       <MonitorCardModal
-        key={monitorSelecionado?._id ?? "fechado"}
         monitor={monitorSelecionado}
         onClose={() => setMonitorSelecionado(null)}
         onSave={handleSalvarMonitor}
       />
 
-      {modalOpen && (
-        <ConformationModal 
-          titulo="Excluir Monitor" 
-          descricao="Tem certeza que deseja excluir este monitor?" 
-          onCancel={() => {
-            setModalOpen(false);
-            setIdParaExcluir(null);
-          }} 
-          onConfirm={handleConfirmarExclusao}
-        />
-      )}
+      <ConformationModal
+        open={modalOpen}
+        titulo="Excluir Monitor"
+        descricao="Tem certeza que deseja excluir este monitor?"
+        onCancel={() => {
+          setModalOpen(false);
+          setIdParaExcluir(null);
+        }}
+        onConfirm={handleConfirmarExclusao}
+      />
     </div>
   );
 }

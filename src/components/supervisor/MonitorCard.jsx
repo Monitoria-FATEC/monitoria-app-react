@@ -2,7 +2,7 @@ import Button from "./SupervisorButton";
 import { useState } from "react";
 
 export default function MonitorCard({ form, onClick, onDelete }) {
-  const { nome, email, ativo, role, dataCriacao } = form;
+  const { nome, email, ativo, role, dataCriacao, agencia, conta } = form;
 
 
   return (
@@ -23,8 +23,8 @@ export default function MonitorCard({ form, onClick, onDelete }) {
         <div className="flex flex-col mt-6 gap-2 font-medium text-[#939E95]">
           <p>email: <span className="font-bold text-[#2E4039]">{email}</span></p>
           <p>perfil: <span className="font-bold text-[#2E4039]">{role}</span></p>
-          <p>data de criação: <span className="font-bold text-[#2E4039]">{dataCriacao}</span></p>
-
+          <p>conta: <span className="font-bold text-[#2E4039]">{conta}</span></p>
+          <p>agencia: <span className="font-bold text-[#2E4039]">{agencia}</span></p>
         </div>
       </button>
       <div className="group-hover:flex group-hover:opacity-100 group-hover:visible opacity-0 invisible rounded-xl absolute items-center justify-center top-0 left-0  gap-4 w-full h-full z-10 bg-black/20 backdrop-blur-sm">
