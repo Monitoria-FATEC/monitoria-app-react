@@ -1,18 +1,17 @@
 import { NavLink } from 'react-router-dom'
 
+import BotaoSair from '../auth/BotaoSair'
+import { abasMonitor } from './abasMonitor'
 import logo from '../../assets/img/logo/logo.png'
 
 export default function MonitorSidebar({ aba, onChange, nome, email }) {
-  const itens = [
-    { id: 'visao-geral', label: 'Visão geral' },
-    { id: 'perfil', label: 'Meu perfil' },
-    { id: 'conta', label: 'Conta e agência' },
-  ]
+  // enquanto edita o termo, o item "Visão geral" continua destacado
+  const abaDoMenu = aba === 'termo' ? 'visao-geral' : aba
 
   return (
     <aside className="flex w-full shrink-0 flex-col bg-[#E9F0E5] px-6 py-8 lg:sticky lg:top-0 lg:h-screen lg:w-64">
       <NavLink
-        to="/monitor"
+        to="/"
         className="inline-flex items-center gap-3 text-[#243d38] no-underline"
       >
         <img
@@ -32,18 +31,19 @@ export default function MonitorSidebar({ aba, onChange, nome, email }) {
         </span>
       </NavLink>
 
-      <nav className="mt-8 grid gap-2 font-medium">
-        {itens.map((item) => (
+      <nav className="mt-8 grid gap-4 font-medium text-[#243d38]">
+        {abasMonitor.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => onChange(item.id)}
-            className={`block w-full rounded-lg p-2 text-left transition ${
-              aba === item.id
+            className={`flex w-full items-center gap-2 rounded-lg p-2 text-left transition-all ${
+              abaDoMenu === item.id
                 ? 'bg-white font-bold text-[#2E4D42] shadow-md'
                 : 'bg-none text-[#7E8B81] hover:bg-white/60'
             }`}
           >
+            {item.icon}
             {item.label}
           </button>
         ))}
@@ -56,9 +56,11 @@ export default function MonitorSidebar({ aba, onChange, nome, email }) {
           {nome}
         </p>
 
-        <p className="truncate text-xs text-[#7E8B81]">
+        <p className="mb-4 truncate text-xs text-[#7E8B81]">
           {email}
         </p>
+
+        <BotaoSair />
       </div>
     </aside>
   )

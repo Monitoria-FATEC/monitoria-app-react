@@ -16,10 +16,25 @@ export async function aprovarInscricao(id) {
 }
 
 // Supervisor devolve ao monitor, com a justificativa.
-export async function devolverInscricao(id, justificativa) {
+// dataLimite (opcional, "AAAA-MM-DD"): prazo para o monitor corrigir.
+export async function devolverInscricao(id, justificativa, dataLimite) {
   const response = await axiosClient.patch(`/inscricoes/${id}/devolver`, {
     justificativa,
+    ...(dataLimite ? { dataLimite } : {}),
   });
+  return response.data;
+}
+
+// Gestão: marca que o PDF foi baixado e enviado para assinatura
+// (para o aluno continua AGUARDANDO_GESTAO).
+export async function enviarInscricaoParaAssinatura(id) {
+  const response = await axiosClient.patch(`/inscricoes/${id}/enviar-assinatura`);
+  return response.data;
+}
+
+// Gestão: homologa depois de assinado fora do sistema.
+export async function homologarInscricao(id) {
+  const response = await axiosClient.patch(`/inscricoes/${id}/homologar`);
   return response.data;
 }
 

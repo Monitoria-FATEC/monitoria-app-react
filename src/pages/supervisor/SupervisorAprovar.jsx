@@ -91,7 +91,8 @@ function mensagemDeErro(error, padrao) {
 
 export default function SupervisorAprovar() {
     const [isActive, setIsActive] = useState("aguardando");
-    const [selectedId, setSelectedId] = useState(null);
+    const [modalForm, setModalForm] = useState(null);
+    const [modalAberto, setModalAberto] = useState(false);
     const [devolvendoId, setDevolvendoId] = useState(null);
 
     const [forms, setForms] = useState([]);
@@ -123,13 +124,24 @@ export default function SupervisorAprovar() {
         carregar();
     }, [carregar]);
 
+    useEffect(() => {
+        if (modalAberto || !modalForm) return;
+
+        const timeoutId = window.setTimeout(() => setModalForm(null), 300);
+        return () => window.clearTimeout(timeoutId);
+    }, [modalAberto, modalForm]);
+
+    function fecharModal() {
+        setModalAberto(false);
+    }
+
     async function handleAprovar(id) {
         setProcessando(true);
         setErro(null);
 
         try {
             await aprovarInscricao(id);
-            setSelectedId(null);
+            fecharModal();
             await carregar();
         } catch (requestError) {
             console.error(requestError);
@@ -139,14 +151,16 @@ export default function SupervisorAprovar() {
         }
     }
 
-    async function handleDevolver(justificativa) {
+    // MUDANÇA 1 de 2: recebe o prazo escolhido no modal
+    async function handleDevolver(justificativa, prazo) {
         setProcessando(true);
         setErro(null);
 
         try {
-            await devolverInscricao(devolvendoId, justificativa);
+            // MUDANÇA 2 de 2: envia o prazo para o back
+            await devolverInscricao(devolvendoId, justificativa, prazo);
             setDevolvendoId(null);
-            setSelectedId(null);
+            fecharModal();
             await carregar();
         } catch (requestError) {
             console.error(requestError);
@@ -161,7 +175,6 @@ export default function SupervisorAprovar() {
     //numero de forms pendentes
     const qntdAguardando = forms.filter((form) => form.status === "aguardando").length;
 
-    const modalForm = forms.find((form) => form.id === selectedId);
     const devolverForm = forms.find((form) => form.id === devolvendoId);
 
     return (
@@ -199,7 +212,10 @@ export default function SupervisorAprovar() {
                         <SupervisorCard
                             key={form.id}
                             form={form}
-                            onClick={() => setSelectedId(form.id)}
+                            onClick={() => {
+                                setModalForm(form);
+                                setModalAberto(true);
+                            }}
                             onAprovar={handleAprovar}
                             onDevolver={setDevolvendoId}
                             desabilitado={processando}
@@ -214,16 +230,16 @@ export default function SupervisorAprovar() {
 
             <div
                 onClick={(event) => {
-                    if (event.target === event.currentTarget) setSelectedId(null)
+                    if (event.target === event.currentTarget) fecharModal()
                 }}
-                className={`fixed inset-0 z-40 flex items-center justify-end bg-black/40 backdrop-blur-sm transition-all ${modalForm ? "opacity-100 visible" : "opacity-0 invisible"}`}
+                className={`fixed inset-0 z-40 flex items-center justify-end bg-black/40 backdrop-blur-sm transition-all duration-300 ease-in-out ${modalAberto ? "opacity-100 visible" : "opacity-0 invisible"}`}
             >
-                <div className={`${modalForm ? "translate-x-0" : "translate-x-full"} transition-all h-full p-2 w-[800px]`}>
+                <div className={`${modalAberto ? "translate-x-0" : "translate-x-full"} transition-transform duration-300 ease-in-out h-full p-2 w-[800px]`}>
                     <SupervisorModalCard
                         form={modalForm}
                         onAprovar={handleAprovar}
                         onDevolver={setDevolvendoId}
-                        onClose={() => setSelectedId(null)}
+                        onClose={fecharModal}
                         desabilitado={processando}
                     />
                 </div>

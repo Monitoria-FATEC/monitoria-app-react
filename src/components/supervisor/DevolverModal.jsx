@@ -3,8 +3,17 @@ import Button from "./SupervisorButton";
 
 const LIMITE = 500;
 
+// Data de hoje no formato do input date (AAAA-MM-DD), no fuso do navegador.
+function hojeIso() {
+    const hoje = new Date();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+    return `${hoje.getFullYear()}-${mes}-${dia}`;
+}
+
 export default function DevolverModal({ form, enviando, onConfirmar, onCancelar }) {
     const [justificativa, setJustificativa] = useState("");
+    const [prazo, setPrazo] = useState("");
 
     const texto = justificativa.trim();
     const podeEnviar = texto.length > 0 && !enviando;
@@ -12,7 +21,7 @@ export default function DevolverModal({ form, enviando, onConfirmar, onCancelar 
     function handleSubmit(event) {
         event.preventDefault();
         if (!podeEnviar) return;
-        onConfirmar(texto);
+        onConfirmar(texto, prazo || undefined);
     }
 
     return (
@@ -30,7 +39,7 @@ export default function DevolverModal({ form, enviando, onConfirmar, onCancelar 
                 className="w-full max-w-lg rounded-2xl bg-[#FAF9F6] p-6 shadow-xl"
             >
                 <h2 id="devolver-titulo" className="text-xl font-bold text-[#2E4039]">
-                    Devolver ficha ao monitor
+                    Devolver entrada ao monitor
                 </h2>
 
                 <p className="mt-2 text-sm text-[#939E95]">
@@ -39,7 +48,7 @@ export default function DevolverModal({ form, enviando, onConfirmar, onCancelar 
                 </p>
 
                 <label className="mt-4 flex flex-col gap-1.5">
-                    <span className="text-xs font-bold uppercase text-gray-400">
+                    <span className="text-xs font-bold uppercase text-gray-500">
                         Motivo da devolução
                     </span>
                     <textarea
@@ -53,8 +62,21 @@ export default function DevolverModal({ form, enviando, onConfirmar, onCancelar 
                         className="w-full resize-none rounded-xl border border-gray-200 bg-white p-3 text-sm text-[#2E4039] outline-none placeholder:text-[#a2ada5] focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15"
                     />
                     <span className="self-end text-xs text-gray-400">
-                        {justificativa.length}/{LIMITE}
+                        {justificativa.length} / {LIMITE}
                     </span>
+                </label>
+
+                <label className="mt-4 flex flex-col gap-1.5 w-fit">
+                    <span className="text-xs font-bold uppercase text-gray-500">
+                        Prazo de retorno (opcional)
+                    </span>
+                    <input
+                        className="rounded-xl border border-gray-200 bg-white p-3 text-sm text-[#2E4039] outline-none placeholder:text-[#a2ada5] focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15"
+                        type="date"
+                        value={prazo}
+                        min={hojeIso()}
+                        onChange={(event) => setPrazo(event.target.value)}
+                    />
                 </label>
 
                 <div className="mt-6 flex flex-wrap justify-end gap-2 border-t border-gray-200 pt-4">

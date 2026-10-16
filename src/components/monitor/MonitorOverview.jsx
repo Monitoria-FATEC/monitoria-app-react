@@ -10,6 +10,11 @@ function valorOuNaoInformado(valor) {
   return valor === null || valor === undefined || valor === '' ? 'Não informado' : valor
 }
 
+// Acrescenta o prazo (quando o supervisor deu um) ao texto da devolução.
+function comPrazo(texto, prazo) {
+  return prazo ? `${texto} Prazo para corrigir: ${formatarData(prazo)}.` : texto
+}
+
 export default function MonitorOverview({ dashboard, contaLiberada, perfilLiberado, onEditarTermo, onAbrirConta, onAbrirPerfil }) {
   return (
     <>
@@ -17,7 +22,7 @@ export default function MonitorOverview({ dashboard, contaLiberada, perfilLibera
         <StatusCard
           title="Status do termo"
           status={dashboard.statusTermo}
-          description={dashboard.statusTermo === 'DEVOLVIDO' ? dashboard.justificativaTermo || 'Seu termo foi devolvido para correção.' : dashboard.dataEnvioTermo ? `Enviado em ${formatarData(dashboard.dataEnvioTermo)}.` : 'Nenhum termo enviado para análise.'}
+          description={dashboard.statusTermo === 'DEVOLVIDO' ? comPrazo(dashboard.justificativaTermo || 'Seu termo foi devolvido para correção.', dashboard.dataLimiteTermo) : dashboard.dataEnvioTermo ? `Enviado em ${formatarData(dashboard.dataEnvioTermo)}.` : 'Nenhum termo enviado para análise.'}
         >
           {dashboard.statusTermo === 'DEVOLVIDO' && <button type="button" onClick={onEditarTermo} className="mt-4 text-sm font-bold text-[#2E4039] underline underline-offset-4">Editar termo →</button>}
         </StatusCard>
@@ -25,7 +30,7 @@ export default function MonitorOverview({ dashboard, contaLiberada, perfilLibera
         <StatusCard
           title="Conta e agência"
           status={dashboard.statusContaAgencia}
-          description={!contaLiberada ? 'O formulário será liberado depois que o termo for aprovado.' : dashboard.statusContaAgencia === 'DEVOLVIDO' ? dashboard.justificativaContaAgencia || 'Confira os dados informados e envie novamente.' : dashboard.numeroConta && dashboard.agencia ? 'Dados enviados para análise da supervisão.' : 'Ainda não há dados bancários enviados.'}
+          description={!contaLiberada ? 'O formulário será liberado depois que o termo for homologado.' : dashboard.statusContaAgencia === 'DEVOLVIDO' ? comPrazo(dashboard.justificativaContaAgencia || 'Confira os dados informados e envie novamente.', dashboard.dataLimiteContaAgencia) : dashboard.numeroConta && dashboard.agencia ? 'Dados enviados para análise da supervisão.' : 'Ainda não há dados bancários enviados.'}
         >
           {contaLiberada && dashboard.statusContaAgencia === 'DEVOLVIDO' && <button type="button" onClick={onAbrirConta} className="mt-4 text-sm font-bold text-[#2E4039] underline underline-offset-4">Corrigir dados →</button>}
         </StatusCard>
