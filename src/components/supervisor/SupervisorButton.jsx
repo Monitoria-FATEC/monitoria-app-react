@@ -1,4 +1,11 @@
-export default function Button({ children, variant = "default", value, onClick, className = "" }) {
+export default function Button({
+    children,
+    variant = "default",
+    value,
+    type = "button",
+    onClick,
+    className = "",
+}) {
     const baseStyle = "p-2 px-4 font-bold text-sm rounded-xl transition-all cursor-pointer";
 
     const variants = {
@@ -10,7 +17,7 @@ export default function Button({ children, variant = "default", value, onClick, 
 
     return (
         <button
-            type="button"
+            type={type}
             value={value}
             onClick={onClick}
             className={`${baseStyle} ${variants[variant]} ${className}`}
