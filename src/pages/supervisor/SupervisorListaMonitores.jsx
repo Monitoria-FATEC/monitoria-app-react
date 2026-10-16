@@ -1,127 +1,160 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SearchBar from "../../components/supervisor/Searchbar";
 import MonitorCard from "../../components/supervisor/MonitorCard";
 import MonitorCardModal from "../../components/supervisor/MonitorCardModal";
 import ConformationModal from "../../components/ConfirmationModal";
+import {
+  alterarAtivoMonitor,
+  atualizarMonitor,
+  listarMonitores,
+} from "../../api/supervisor";
+
+// Converte o monitor que vem do back no formato que o card e o modal já usam.
+function paraCard(monitor) {
+  return {
+    ...monitor,
+    _id: monitor.id,
+    role: "MONITOR",
+    conta: monitor.numeroConta ?? "",
+    agencia: monitor.agencia ?? "",
+    dataCriacao: monitor.dataCadastro,
+  };
+}
+
+function mensagemDeErro(error, padrao) {
+  if (error.response?.status === 403) {
+    return "Você não tem permissão para esta ação.";
+  }
+  return error.response?.data?.message || padrao;
+}
 
 export default function SupervisorListaMonitores() {
+  const [monitores, setMonitores] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(null);
+
   const [monitorSelecionado, setMonitorSelecionado] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [idParaExcluir, setIdParaExcluir] = useState(null);
+  const [idParaDesativar, setIdParaDesativar] = useState(null);
 
-  const [monitores, setMonitores] = useState([
-    {
-      _id: "6ac31607b499a5e7e834f3b",
-      nome: "Aluno Fatec 1",
-      email: "aluno1@fatec.sp.gov.br",
-      senha: "$2a$10$OHR3CG42/MrSniij3kxpn08Ku3TyHvjMx.pwOd24ZsmJCIEnoqTWK",
-      role: "MONITOR",
-      ativo: true,
-      dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
-      agencia: "0001",
-      conta: "12345-6"
-    },
-    {
-      _id: "6ac31607b499a5e7e834f3c",
-      nome: "Aluno Fatec 2",
-      email: "aluno2@fatec.sp.gov.br",
-      senha: "$2a$10$OHR3CG42/MrSniij3kxpn08Ku3TyHvjMx.pwOd24ZsmJCIEnoqTWK",
-      role: "MONITOR",
-      ativo: true,
-      dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
-      agencia: "0001",
-      conta: "23456-7"
-    },
-    {
-      _id: "6ac31607b499a5e7e834f3d",
-      nome: "Aluno Fatec 3",
-      email: "aluno3@fatec.sp.gov.br",
-      senha: "$2a$10$OHR3CG42/MrSniij3kxpn08Ku3TyHvjMx.pwOd24ZsmJCIEnoqTWK",
-      role: "MONITOR",
-      ativo: false,
-      dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
-      agencia: "0001",
-      conta: "34567-8"
-    },
-    {
-      _id: "6ac31607b499a5e7e834f3e",
-      nome: "Administrador Sistema",
-      email: "admin@fatec.sp.gov.br",
-      senha: "$2a$10$OHR3CG42/MrSniij3kxpn08Ku3TyHvjMx.pwOd24ZsmJCIEnoqTWK",
-      role: "ADMIN",
-      ativo: true,
-      dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
-      agencia: "0002",
-      conta: "45678-9"
-    },
-    {
-      _id: "6ac31607b499a5e7e834f3f",
-      nome: "Supervisor Acadêmico",
-      email: "supervisor@fatec.sp.gov.br",
-      senha: "$2a$10$OHR3CG42/MrSniij3kxpn08Ku3TyHvjMx.pwOd24ZsmJCIEnoqTWK",
-      role: "SUPERVISOR",
-      ativo: true,
-      dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
-      agencia: "0002",
-      conta: "56789-0"
-    },
-    {
-      _id: "6ac31607b499a5e7e834f40",
-      nome: "Gestão FATEC",
-      email: "gestao@fatec.sp.gov.br",
-      senha: "$2a$10$OHR3CG42/MrSniij3kxpn08Ku3TyHvjMx.pwOd24ZsmJCIEnoqTWK",
-      role: "GESTAO",
-      ativo: true,
-      dataCriacao: "2026-10-05",
-      _class: "com.fatec.monitoria.modules.usuario.domain.Usuario",
-      agencia: "0002",
-      conta: "67890-1"
+  const carregar = useCallback(async () => {
+    try {
+      const lista = await listarMonitores();
+      setMonitores(lista.map(paraCard));
+      setErro(null);
+    } catch (requestError) {
+      console.error(requestError);
+      setErro(
+        mensagemDeErro(
+          requestError,
+          "Não foi possível carregar os monitores. Verifique a conexão com o servidor."
+        )
+      );
+    } finally {
+      setCarregando(false);
     }
-  ]);
+  }, []);
 
-  function handleSolicitarExclusao(id) {
-    setIdParaExcluir(id);
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
+  function substituir(monitorAtualizado) {
+    setMonitores((anteriores) =>
+      anteriores.map((monitor) =>
+        monitor._id === monitorAtualizado.id ? paraCard(monitorAtualizado) : monitor
+      )
+    );
+  }
+
+  function handleSolicitarDesativacao(id) {
+    setIdParaDesativar(id);
     setModalOpen(true);
   }
 
-  function handleConfirmarExclusao() {
-    if (idParaExcluir) {
-      setMonitores((prevMonitores) => 
-        prevMonitores.filter((monitor) => monitor._id !== idParaExcluir)
-      );
-    }
+  async function handleConfirmarDesativacao() {
+    const id = idParaDesativar;
     setModalOpen(false);
-    setIdParaExcluir(null);
+    setIdParaDesativar(null);
+    if (!id) return;
+
+    try {
+      const resposta = await alterarAtivoMonitor(id, false);
+      substituir(resposta);
+      setErro(null);
+    } catch (requestError) {
+      console.error(requestError);
+      setErro(mensagemDeErro(requestError, "Não foi possível desativar o monitor."));
+    }
   }
 
-  function handleSalvarMonitor(monitorAtualizado) {
-    setMonitores((prevMonitores) =>
-      prevMonitores.map((monitor) =>
-        monitor._id === monitorAtualizado._id ? monitorAtualizado : monitor
-      )
-    );
-    setMonitorSelecionado(null);
-  }
+  async function handleSalvarMonitor(atualizado) {
+    const original = monitores.find((monitor) => monitor._id === atualizado._id);
 
-  const filterMonitores = monitores.filter((monitor) => monitor.role === "MONITOR");
+    try {
+      let resposta = await atualizarMonitor(atualizado._id, {
+        nome: atualizado.nome,
+        email: atualizado.email,
+        curso: atualizado.curso,
+        numeroConta: atualizado.conta,
+        agencia: atualizado.agencia,
+      });
+
+      if (original && original.ativo !== atualizado.ativo) {
+        resposta = await alterarAtivoMonitor(atualizado._id, atualizado.ativo);
+      }
+
+      substituir(resposta);
+      setMonitorSelecionado(null);
+      setErro(null);
+    } catch (requestError) {
+      console.error(requestError);
+      setErro(mensagemDeErro(requestError, "Não foi possível salvar as alterações."));
+      // recarrega para a tela não ficar diferente do que está salvo
+      carregar();
+    }
+  }
 
   return (
     <div className="px-6">
+      {erro && (
+        <div
+          className="fixed right-4 top-4 z-[60] max-w-md rounded-xl bg-[#fce8e5] px-4 py-3 text-sm text-[#a64e49] shadow-lg"
+          role="alert"
+        >
+          <div className="flex items-start gap-3">
+            <span>{erro}</span>
+            <button
+              type="button"
+              onClick={() => setErro(null)}
+              aria-label="Fechar aviso"
+              className="cursor-pointer text-[#a64e49]"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="py-2 border-b border-gray-200">
         <SearchBar />
       </div>
+
+      {carregando && (
+        <p className="py-6 text-sm text-[#939E95]">Carregando monitores...</p>
+      )}
+
+      {!carregando && monitores.length === 0 && !erro && (
+        <p className="py-6 text-sm text-[#939E95]">Nenhum monitor cadastrado.</p>
+      )}
+
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 py-6">
-        {filterMonitores.map((monitor) => (
+        {monitores.map((monitor) => (
           <MonitorCard
             key={monitor._id}
             form={monitor}
             onClick={() => setMonitorSelecionado(monitor)}
-            onDelete={() => handleSolicitarExclusao(monitor._id)}
+            onDelete={() => handleSolicitarDesativacao(monitor._id)}
           />
         ))}
       </div>
@@ -134,13 +167,13 @@ export default function SupervisorListaMonitores() {
 
       <ConformationModal
         open={modalOpen}
-        titulo="Excluir Monitor"
-        descricao="Tem certeza que deseja excluir este monitor?"
+        titulo="Desativar Monitor"
+        descricao="O monitor não será apagado, só ficará inativo. Você pode reativar na edição."
         onCancel={() => {
           setModalOpen(false);
-          setIdParaExcluir(null);
+          setIdParaDesativar(null);
         }}
-        onConfirm={handleConfirmarExclusao}
+        onConfirm={handleConfirmarDesativacao}
       />
     </div>
   );
