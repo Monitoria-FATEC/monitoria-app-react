@@ -151,12 +151,14 @@ export default function SupervisorAprovar() {
         }
     }
 
-    async function handleDevolver(justificativa) {
+    // MUDANÇA 1 de 2: recebe o prazo escolhido no modal
+    async function handleDevolver(justificativa, prazo) {
         setProcessando(true);
         setErro(null);
 
         try {
-            await devolverInscricao(devolvendoId, justificativa);
+            // MUDANÇA 2 de 2: envia o prazo para o back
+            await devolverInscricao(devolvendoId, justificativa, prazo);
             setDevolvendoId(null);
             fecharModal();
             await carregar();
