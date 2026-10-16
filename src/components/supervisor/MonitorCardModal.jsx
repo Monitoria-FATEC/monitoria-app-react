@@ -104,11 +104,12 @@ export default function MonitorCardModal({ monitor, onClose, onSave }) {
                         RA
                       </span>
                       <input
-                        className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-[#2E4039] outline-none focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15"
+                        className="rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-[#2E4039] outline-none"
                         type="text"
                         name="ra"
                         value={formulario.ra}
-                        onChange={handleChange}
+                        readOnly
+                        title="O RA não pode ser alterado"
                       />
                     </label>
                     <label className="flex flex-col gap-1">

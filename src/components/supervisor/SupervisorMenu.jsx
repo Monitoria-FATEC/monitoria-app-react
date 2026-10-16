@@ -1,12 +1,13 @@
 import { NavLink } from "react-router-dom";
 import { supervisorRoutes } from "../../routes/supervisorRoutes";
+import BotaoSair from "../auth/BotaoSair";
 import logo from '../../assets/img/logo/logo.png'
 
 export default function SupervisorMenu() {
 
     return(
 
-    <aside className="w-64 bg-[#E9F0E5] h-screen sticky top-0 px-6 py-8 shrink-0">
+    <aside className="flex flex-col w-64 bg-[#E9F0E5] h-screen sticky top-0 px-6 py-8 shrink-0">
         <NavLink to="/" className="inline-flex items-center gap-3 text-[#243d38] no-underline">
           <img className="h-14 w-14 object-contain" src={logo} alt="Logo da Monitoria" />
           <span className="flex flex-col leading-tight">
@@ -31,6 +32,10 @@ export default function SupervisorMenu() {
             </li>
           ))}
         </ul>
+
+        <div className="mt-auto border-t border-[#d5e2d2] pt-5">
+          <BotaoSair />
+        </div>
       </aside>
     )
 }
