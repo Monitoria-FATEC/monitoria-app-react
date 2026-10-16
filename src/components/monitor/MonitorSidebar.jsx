@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
+import BotaoSair from '../auth/BotaoSair'
 import logo from '../../assets/img/logo/logo.png'
 
 export default function MonitorSidebar({ aba, onChange, nome, email }) {
@@ -56,9 +57,11 @@ export default function MonitorSidebar({ aba, onChange, nome, email }) {
           {nome}
         </p>
 
-        <p className="truncate text-xs text-[#7E8B81]">
+        <p className="mb-4 truncate text-xs text-[#7E8B81]">
           {email}
         </p>
+
+        <BotaoSair />
       </div>
     </aside>
   )

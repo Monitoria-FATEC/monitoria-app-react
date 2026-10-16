@@ -68,7 +68,7 @@ export default function MonitorDashboard() {
   )
   const nomeMonitor = dashboard.nome || sessao?.usuario?.nome || 'Monitor'
   const emailMonitor = dashboard.email || sessao?.usuario?.email || ''
-  const contaLiberada = dashboard.statusTermo === 'APROVADO'
+  const contaLiberada = dashboard.statusInscricao === 'HOMOLOGADA'
   const perfilLiberado = dashboard.statusContaAgencia === 'APROVADO'
 
   async function executarAcao(acao, sucesso) {
