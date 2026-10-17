@@ -15,6 +15,29 @@ export async function autenticarMonitor(dados) {
   return response.data;
 }
 
+// Recuperação de senha (rotas públicas em /auth).
+export async function solicitarRecuperacaoSenha({ email }) {
+  const response = await axiosClient.post("/auth/esqueci-senha", { email });
+  return response.data;
+}
+
+export async function verificarCodigoRecuperacao({ email, codigo }) {
+  const response = await axiosClient.post("/auth/esqueci-senha/verificar", {
+    email,
+    codigo,
+  });
+  return response.data;
+}
+
+export async function redefinirSenha({ email, codigo, novaSenha }) {
+  const response = await axiosClient.post("/auth/esqueci-senha/redefinir", {
+    email,
+    codigo,
+    novaSenha,
+  });
+  return response.data;
+}
+
 // Cria a conta de acesso (e-mail + senha). Perfil inicial: MONITOR.
 export async function cadastrarConta({ nome, email, senha }) {
   const response = await axiosClient.post("/auth/cadastro", {
