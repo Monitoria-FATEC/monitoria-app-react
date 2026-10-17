@@ -17,6 +17,26 @@ import {
 } from '../../utils/validacoes'
 import CampoFormulario from './CampoFormulario'
 
+function IconeOlho({ aberto }) {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="3" />
+      {!aberto && <path d="M4 4l16 16" />}
+    </svg>
+  )
+}
+
 const formularioInicial = {
   nome: '',
   ra: '',
@@ -32,6 +52,7 @@ export default function MonitorSignupForm() {
   const [erros, setErros] = useState({})
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState(null)
+  const [mostrarSenha, setMostrarSenha] = useState(false)
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -65,6 +86,8 @@ export default function MonitorSignupForm() {
 
     setEnviando(true)
 
+    // A senha só vai para a criação da conta: nunca para /monitores
+    // nem para o state da navegação.
     const { senha, ...resto } = formulario
 
     const dadosMonitor = {
@@ -96,7 +119,7 @@ export default function MonitorSignupForm() {
       return
     }
 
-    // Entra automaticamente com a conta recém-criada.
+    // Entra automaticamente com a conta recém-criada (não bloqueia o fluxo se falhar).
     try {
       const resposta = await autenticarMonitor({
         email: dadosMonitor.email,
@@ -158,7 +181,7 @@ export default function MonitorSignupForm() {
         />
       </CampoFormulario>
 
-      <CampoFormulario label="RA" erro={erros.ra}>
+      <CampoFormulario label="RA" hint="13 dígitos, só números" erro={erros.ra}>
         <input
           className={classeCampo(erros.ra)}
           type="text"
@@ -167,6 +190,7 @@ export default function MonitorSignupForm() {
           onChange={handleChange}
           aria-invalid={Boolean(erros.ra)}
           inputMode="numeric"
+          maxLength={13}
           placeholder="Seu registro acadêmico"
         />
       </CampoFormulario>
@@ -189,17 +213,33 @@ export default function MonitorSignupForm() {
         </select>
       </CampoFormulario>
 
-      <CampoFormulario label="Senha" erro={erros.senha}>
-        <input
-          className={classeCampo(erros.senha)}
-          type="password"
-          name="senha"
-          value={formulario.senha}
-          onChange={handleChange}
-          aria-invalid={Boolean(erros.senha)}
-          autoComplete="new-password"
-          placeholder={`Mínimo de ${TAMANHO_MINIMO_SENHA} caracteres`}
-        />
+      <CampoFormulario
+        label="Senha"
+        hint="Mínimo de 6 caracteres, com letras e números"
+        erro={erros.senha}
+      >
+        <div className="relative">
+          <input
+            className={`${classeCampo(erros.senha)} pr-11`}
+            type={mostrarSenha ? 'text' : 'password'}
+            name="senha"
+            value={formulario.senha}
+            onChange={handleChange}
+            aria-invalid={Boolean(erros.senha)}
+            autoComplete="new-password"
+            placeholder={`Mínimo de ${TAMANHO_MINIMO_SENHA} caracteres`}
+          />
+
+          <button
+            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-[9px] text-[#68766e] transition hover:text-[#0d3524]"
+            type="button"
+            onClick={() => setMostrarSenha((atual) => !atual)}
+            aria-label={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
+            aria-pressed={mostrarSenha}
+          >
+            <IconeOlho aberto={mostrarSenha} />
+          </button>
+        </div>
       </CampoFormulario>
 
       <button

@@ -69,6 +69,7 @@ function Secao({ eyebrow, title, description, children }) {
   )
 }
 
+// Unidade e cidade são fixas: aparecem preenchidas e não podem ser editadas.
 function CampoFixo({ label, valor }) {
   return (
     <CampoFormulario label={label}>
@@ -260,9 +261,9 @@ export default function TermoCompromisso() {
           </h1>
 
           <p className="m-0 text-sm leading-relaxed text-[#68766e]">
-            Sua assinatura foi registrada. O(a) professor(a) orientador(a) e
-            o(a) coordenador(a) do curso ainda precisam assinar para
-            finalizar o Termo de Compromisso de Monitoria.
+            Recebemos o seu termo e a sua assinatura. Para concluir o
+            processo, ainda faltam as assinaturas do professor orientador e
+            da coordenação do curso.
           </p>
 
           <Link

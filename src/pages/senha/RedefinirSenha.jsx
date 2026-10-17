@@ -2,11 +2,9 @@ import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 import { redefinirSenha } from '../../api/monitorApi'
+import { validarSenha } from '../../utils/validacoes'
 
 import loginImage from '../../assets/img/cadastro/login.png'
-
-// Mesmo mínimo exigido no cadastro (MonitorSignupForm).
-const TAMANHO_MINIMO_SENHA = 6
 
 const campoClassName =
   'w-full rounded-[9px] border border-[#d7e0d6] bg-[#fbfcfa] px-3.5 py-3 text-[13px] text-[#243d38] outline-none placeholder:text-[#a2ada5] focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15'
@@ -32,8 +30,10 @@ export default function RedefinirSenha() {
   async function handleSubmit(event) {
     event.preventDefault()
 
-    if (novaSenha.length < TAMANHO_MINIMO_SENHA) {
-      setErro(`A senha precisa ter no mínimo ${TAMANHO_MINIMO_SENHA} caracteres.`)
+    const erroSenha = validarSenha(novaSenha)
+
+    if (erroSenha) {
+      setErro(erroSenha)
       return
     }
 
@@ -156,10 +156,9 @@ export default function RedefinirSenha() {
                   setNovaSenha(event.target.value)
                 }}
                 required
-                minLength={TAMANHO_MINIMO_SENHA}
                 autoFocus
                 autoComplete="new-password"
-                placeholder={`Mínimo de ${TAMANHO_MINIMO_SENHA} caracteres`}
+                placeholder="Mínimo de 6 caracteres, com letras e números"
               />
             </label>
 
@@ -178,7 +177,6 @@ export default function RedefinirSenha() {
                   setConfirmarSenha(event.target.value)
                 }}
                 required
-                minLength={TAMANHO_MINIMO_SENHA}
                 autoComplete="new-password"
                 placeholder="Digite a senha novamente"
               />

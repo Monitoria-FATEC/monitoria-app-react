@@ -1,8 +1,5 @@
 // Validações compartilhadas do pré-cadastro e do termo de compromisso.
-// Cada validador devolve '' quando o valor é válido, ou a mensagem de erro.
-
-// Mude para true se só e-mails @fatec.sp.gov.br puderem se cadastrar.
-export const EXIGIR_EMAIL_INSTITUCIONAL = false
+export const EXIGIR_EMAIL_INSTITUCIONAL = true
 export const DOMINIO_INSTITUCIONAL = 'fatec.sp.gov.br'
 
 export const TAMANHO_MINIMO_SENHA = 6
@@ -10,8 +7,7 @@ export const CARGA_HORARIA_MINIMA = 4
 export const CARGA_HORARIA_MAXIMA = 8
 
 const TAMANHO_MAXIMO_NOME = 100
-const TAMANHO_MINIMO_RA = 8
-const TAMANHO_MAXIMO_RA = 15
+const TAMANHO_RA = 13
 const TAMANHO_MAXIMO_SENHA = 72
 const MAXIMO_VIAS = 10
 const DIAS_MINIMOS_PERIODO = 30
@@ -140,14 +136,14 @@ export function validarEmail(valor) {
     !usuario.endsWith('.')
 
   if (!formatoValido) {
-    return 'Informe um e-mail válido, como voce@fatec.sp.gov.br.'
+    return `Informe um e-mail válido, como voce@${DOMINIO_INSTITUCIONAL}.`
   }
 
   if (
     EXIGIR_EMAIL_INSTITUCIONAL &&
     !email.toLowerCase().endsWith(`@${DOMINIO_INSTITUCIONAL}`)
   ) {
-    return `Use seu e-mail institucional (@${DOMINIO_INSTITUCIONAL}).`
+    return `Use seu e-mail institucional, que termina em @${DOMINIO_INSTITUCIONAL}.`
   }
 
   return ''
@@ -160,8 +156,8 @@ export function validarRa(valor) {
 
   if (!/^\d+$/.test(ra)) return 'O RA deve conter apenas números.'
 
-  if (ra.length < TAMANHO_MINIMO_RA || ra.length > TAMANHO_MAXIMO_RA) {
-    return `O RA deve ter entre ${TAMANHO_MINIMO_RA} e ${TAMANHO_MAXIMO_RA} dígitos.`
+  if (ra.length !== TAMANHO_RA) {
+    return `O RA deve ter ${TAMANHO_RA} dígitos.`
   }
 
   if (/^(\d)\1+$/.test(ra)) return 'Informe um RA válido.'
@@ -174,7 +170,7 @@ export function validarSenha(valor) {
 
   if (!senha) return 'Informe a senha.'
 
-  if (!senha.trim()) return 'A senha não pode ter apenas espaços.'
+  if (/\s/.test(senha)) return 'A senha não pode conter espaços.'
 
   if (senha.length < TAMANHO_MINIMO_SENHA) {
     return `A senha precisa ter no mínimo ${TAMANHO_MINIMO_SENHA} caracteres.`
@@ -182,6 +178,10 @@ export function validarSenha(valor) {
 
   if (senha.length > TAMANHO_MAXIMO_SENHA) {
     return `A senha deve ter no máximo ${TAMANHO_MAXIMO_SENHA} caracteres.`
+  }
+
+  if (!/\p{L}/u.test(senha) || !/\d/.test(senha)) {
+    return 'A senha precisa ter pelo menos uma letra e um número.'
   }
 
   return ''
@@ -356,7 +356,7 @@ export function validarTermoCompromisso(
       : '',
   }
 
-  // Datas: cada uma precisa ser real e plausível, e fazer sentido entre si.
+  // Datas: cada uma precisa ser real e fazer sentido entre si.
   const hoje = lerData(dataDeHoje())
   const anoMinimo = hoje.ano - 1
   const anoMaximo = hoje.ano + 2
