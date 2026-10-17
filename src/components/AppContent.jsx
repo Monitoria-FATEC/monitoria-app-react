@@ -8,6 +8,9 @@ import { supervisorRoutes } from '../routes/supervisorRoutes'
 import SupervisorHome from '../pages/supervisor/SupervisorHome'
 import RotaProtegida from './auth/RotaProtegida'
 import MonitorDashboard from '../pages/monitor/MonitorDashboard'
+import EsqueciSenha from '../pages/senha/EsqueciSenha'
+import VerificarCodigo from '../pages/senha/VerificarCodigo'
+import RedefinirSenha from '../pages/senha/RedefinirSenha'
 
 export default function AppContent() {
   return (
@@ -17,6 +20,15 @@ export default function AppContent() {
         <Route path="/cadastro" element={<PreCadastro />} />
         <Route path="/cadastro/termo" element={<TermoCompromisso />} />
         <Route path="/entrar" element={<Login />} />
+        <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+        <Route
+          path="/esqueci-senha/verificar"
+          element={<VerificarCodigo />}
+        />
+        <Route
+          path="/esqueci-senha/redefinir"
+          element={<RedefinirSenha />}
+        />
         <Route
           path="/monitor"
           element={
