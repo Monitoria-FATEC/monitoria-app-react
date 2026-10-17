@@ -4,14 +4,22 @@ import SignatureCanvasImport from 'react-signature-canvas'
 
 import { criarInscricao } from '../../api/inscricaoApi'
 import { enviarTermoCompromisso } from '../../api/monitorApi'
+import CampoFormulario from '../../components/access/CampoFormulario'
 import { cursosFatecZonaLeste } from '../../data/cursosFatecZonaLeste'
+import { CIDADE_FATEC, UNIDADE_FATEC } from '../../data/unidadeFatec'
+import { campoFixoClassName, classeCampo } from '../../utils/estilosFormulario'
+import {
+  dataDeHoje,
+  focarPrimeiroCampoInvalido,
+  lerData,
+  normalizarEspacos,
+  validarTermoCompromisso,
+} from '../../utils/validacoes'
 
 const SignatureCanvas =
   typeof SignatureCanvasImport === 'function'
     ? SignatureCanvasImport
     : SignatureCanvasImport.default
-
-const UNIDADE_FATEC = 'Fatec Zona Leste'
 
 function formatarCpf(valor) {
   const digitos = valor.replace(/\D/g, '').slice(0, 11)
@@ -27,19 +35,14 @@ const ofertaOpcoes = [
   { valor: 'semestral', label: 'Semestral' },
 ]
 
-const campoClassName =
-  'w-full rounded-[9px] border border-[#d7e0d6] bg-[#fbfcfa] px-3.5 py-3 text-[13px] text-[#243d38] outline-none placeholder:text-[#a2ada5] focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15'
-
 const rotuloClassName = 'text-xs font-bold text-[#39544c]'
 
-function Campo({ label, hint, children }) {
-  return (
-    <label className="grid gap-1.5">
-      <span className={rotuloClassName}>{label}</span>
-      {children}
-      {hint && <span className="text-[11px] text-[#88958d]">{hint}</span>}
-    </label>
-  )
+// Quando um campo muda, os erros que dependem dele também saem da tela.
+const camposRelacionados = {
+  periodoInicio: ['periodoFim', 'dataAssinatura'],
+  periodoFim: ['dataAssinatura'],
+  oferta: ['periodoFim'],
+  nomeEstudante: ['nomeProfessor', 'nomeCoordenador'],
 }
 
 function Secao({ eyebrow, title, description, children }) {
@@ -66,6 +69,21 @@ function Secao({ eyebrow, title, description, children }) {
   )
 }
 
+function CampoFixo({ label, valor }) {
+  return (
+    <CampoFormulario label={label}>
+      <input
+        className={campoFixoClassName}
+        type="text"
+        value={valor}
+        disabled
+        readOnly
+        aria-readonly="true"
+      />
+    </CampoFormulario>
+  )
+}
+
 const termoInicial = {
   nomeEstudante: '',
   ra: '',
@@ -79,7 +97,6 @@ const termoInicial = {
   editalNumero: '',
   nomeProfessor: '',
   nomeCoordenador: '',
-  cidade: '',
   dataAssinatura: '',
   numeroVias: '',
 }
@@ -88,93 +105,92 @@ export default function TermoCompromisso() {
   const location = useLocation()
   const dadosPreCadastro = location.state ?? {}
 
+  const formRef = useRef(null)
+  const sigPadRef = useRef(null)
+
   const [termo, setTermo] = useState({
     ...termoInicial,
     nomeEstudante: dadosPreCadastro.nome ?? '',
     ra: dadosPreCadastro.ra ?? '',
     curso: dadosPreCadastro.curso ?? '',
   })
+  const [erros, setErros] = useState({})
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [erro, setErro] = useState(null)
   const [termoId, setTermoId] = useState(null)
-
-  const sigPadRef = useRef(null)
   const [assinaturaVazia, setAssinaturaVazia] = useState(true)
+
+  const hoje = dataDeHoje()
+  const anoAtual = lerData(hoje).ano
+  const dataMinimaPeriodo = `${anoAtual - 1}-01-01`
+  const dataMaximaPeriodo = `${anoAtual + 2}-12-31`
+
+  function limparErros(campo) {
+    const camposParaLimpar = [campo, ...(camposRelacionados[campo] ?? [])]
+
+    setErros((errosAtuais) =>
+      Object.fromEntries(
+        Object.entries(errosAtuais).filter(
+          ([nome]) => !camposParaLimpar.includes(nome)
+        )
+      )
+    )
+  }
+
+  function atualizarCampo(campo, valor) {
+    setTermo((termoAtual) => ({ ...termoAtual, [campo]: valor }))
+    limparErros(campo)
+  }
+
+  function handleChange(event) {
+    atualizarCampo(event.target.name, event.target.value)
+  }
+
+  function handleCpfChange(event) {
+    atualizarCampo('cpf', formatarCpf(event.target.value))
+  }
+
+  function handleOfertaChange(valor) {
+    atualizarCampo('oferta', valor)
+  }
 
   function handleLimparAssinatura() {
     sigPadRef.current?.clear()
     setAssinaturaVazia(true)
   }
 
-  function handleChange(event) {
-    const { name, value } = event.target
-
-    setTermo((termoAtual) => ({
-      ...termoAtual,
-      [name]: value,
-    }))
-  }
-
-  function handleCpfChange(event) {
-    setTermo((termoAtual) => ({
-      ...termoAtual,
-      cpf: formatarCpf(event.target.value),
-    }))
-  }
-
-  function handleOfertaChange(valor) {
-    setTermo((termoAtual) => ({ ...termoAtual, oferta: valor }))
-  }
-
-  function validar() {
-    if (!dadosPreCadastro.idMonitor) {
-      return 'Faça o cadastro antes de enviar o termo.'
-    }
-
-    const cpfLimpo = termo.cpf.replace(/\D/g, '')
-
-    if (cpfLimpo.length !== 11) {
-      return 'Informe um CPF válido, com 11 dígitos.'
-    }
-
-    if (!termo.oferta) {
-      return 'Selecione a oferta da disciplina (anual ou semestral).'
-    }
-
-    const cargaHoraria = Number(termo.cargaHoraria)
-
-    if (cargaHoraria < 4 || cargaHoraria > 8) {
-      return 'A carga horária semanal deve ser de 4 a 8 horas, conforme o Art. 5º da Deliberação CEETEPS n. 111/2026.'
-    }
-
-    if (
-      termo.periodoInicio &&
-      termo.periodoFim &&
-      termo.periodoFim < termo.periodoInicio
-    ) {
-      return 'A data final do período letivo não pode ser anterior à data inicial.'
-    }
-
-    if (!sigPadRef.current || sigPadRef.current.isEmpty()) {
-      return 'Assine no campo de assinatura antes de enviar o termo.'
-    }
-
-    return null
+  function handleFimAssinatura() {
+    setAssinaturaVazia(false)
+    limparErros('assinatura')
   }
 
   async function handleSubmit(event) {
     event.preventDefault()
 
-    const mensagemValidacao = validar()
+    setErro(null)
 
-    if (mensagemValidacao) {
-      setErro(mensagemValidacao)
+    if (!dadosPreCadastro.idMonitor) {
+      setErro('Faça o cadastro antes de enviar o termo.')
+      return
+    }
+
+    const assinaturaEstaVazia =
+      !sigPadRef.current || sigPadRef.current.isEmpty()
+
+    const errosEncontrados = validarTermoCompromisso(termo, {
+      cursos: cursosFatecZonaLeste,
+      assinaturaVazia: assinaturaEstaVazia,
+    })
+
+    setErros(errosEncontrados)
+
+    if (Object.keys(errosEncontrados).length > 0) {
+      focarPrimeiroCampoInvalido(formRef.current)
       return
     }
 
     setEnviando(true)
-    setErro(null)
 
     let termoSalvo = false
 
@@ -188,7 +204,14 @@ export default function TermoCompromisso() {
 
         const termoCriado = await enviarTermoCompromisso({
           ...termo,
+          nomeEstudante: normalizarEspacos(termo.nomeEstudante),
+          nomeProfessor: normalizarEspacos(termo.nomeProfessor),
+          nomeCoordenador: normalizarEspacos(termo.nomeCoordenador),
+          disciplina: normalizarEspacos(termo.disciplina),
+          ra: termo.ra.trim(),
+          editalNumero: termo.editalNumero.replace(/\s+/g, ''),
           unidade: UNIDADE_FATEC,
+          cidade: CIDADE_FATEC,
           assinaturaEstudante,
         })
 
@@ -280,60 +303,70 @@ export default function TermoCompromisso() {
           </p>
         </div>
 
-        <form className="grid gap-5" onSubmit={handleSubmit} noValidate>
+        <form
+          ref={formRef}
+          className="grid gap-5"
+          onSubmit={handleSubmit}
+          noValidate
+        >
           <Secao
             eyebrow="MONITOR(A)"
             title="Dados do(a) estudante"
             description="Informações de quem exercerá a monitoria."
           >
             <div className="sm:col-span-2">
-              <Campo label="Nome completo do(a) estudante">
+              <CampoFormulario
+                label="Nome completo do(a) estudante"
+                erro={erros.nomeEstudante}
+              >
                 <input
-                  className={campoClassName}
+                  className={classeCampo(erros.nomeEstudante)}
                   type="text"
                   name="nomeEstudante"
                   value={termo.nomeEstudante}
                   onChange={handleChange}
-                  required
+                  aria-invalid={Boolean(erros.nomeEstudante)}
+                  autoComplete="name"
                   placeholder="Nome completo do(a) monitor(a)"
                 />
-              </Campo>
+              </CampoFormulario>
             </div>
 
-            <Campo label="RA">
+            <CampoFormulario label="RA" erro={erros.ra}>
               <input
-                className={campoClassName}
+                className={classeCampo(erros.ra)}
                 type="text"
                 name="ra"
                 value={termo.ra}
                 onChange={handleChange}
-                required
+                aria-invalid={Boolean(erros.ra)}
+                inputMode="numeric"
                 placeholder="Registro acadêmico"
               />
-            </Campo>
+            </CampoFormulario>
 
-            <Campo label="CPF">
+            <CampoFormulario label="CPF" erro={erros.cpf}>
               <input
-                className={campoClassName}
+                className={classeCampo(erros.cpf)}
                 type="text"
                 name="cpf"
                 value={termo.cpf}
                 onChange={handleCpfChange}
-                required
+                aria-invalid={Boolean(erros.cpf)}
                 inputMode="numeric"
                 placeholder="000.000.000-00"
                 maxLength={14}
               />
-            </Campo>
+            </CampoFormulario>
 
             <div className="sm:col-span-2">
-              <Campo label="Curso">
+              <CampoFormulario label="Curso" erro={erros.curso}>
                 <select
-                  className={campoClassName}
+                  className={classeCampo(erros.curso)}
                   name="curso"
                   value={termo.curso}
                   onChange={handleChange}
-                  required
+                  aria-invalid={Boolean(erros.curso)}
                 >
                   <option value="">Selecione o curso</option>
 
@@ -343,7 +376,7 @@ export default function TermoCompromisso() {
                     </option>
                   ))}
                 </select>
-              </Campo>
+              </CampoFormulario>
             </div>
           </Secao>
 
@@ -353,29 +386,38 @@ export default function TermoCompromisso() {
             description="Conforme a Cláusula Primeira e Terceira do Termo."
           >
             <div className="sm:col-span-2">
-              <Campo label="Disciplina da monitoria">
+              <CampoFormulario
+                label="Disciplina da monitoria"
+                erro={erros.disciplina}
+              >
                 <input
-                  className={campoClassName}
+                  className={classeCampo(erros.disciplina)}
                   type="text"
                   name="disciplina"
                   value={termo.disciplina}
                   onChange={handleChange}
-                  required
+                  aria-invalid={Boolean(erros.disciplina)}
                   placeholder="Ex.: Estrutura de Dados"
                 />
-              </Campo>
+              </CampoFormulario>
             </div>
 
             <div className="sm:col-span-2">
               <span className={rotuloClassName}>Oferta da disciplina</span>
 
-              <div className="mt-1.5 grid grid-cols-2 gap-2.5">
+              <div
+                className="mt-1.5 grid grid-cols-2 gap-2.5"
+                data-invalido={Boolean(erros.oferta)}
+                tabIndex={-1}
+              >
                 {ofertaOpcoes.map((opcao) => (
                   <button
                     className={`rounded-[9px] border px-3.5 py-3 text-[13px] font-medium transition ${
                       termo.oferta === opcao.valor
                         ? 'border-[#315c50] bg-[#edf4ed] text-[#0d3524]'
-                        : 'border-[#d7e0d6] bg-[#fbfcfa] text-[#243d38] hover:border-[#769c8d]'
+                        : erros.oferta
+                          ? 'border-[#c9736b] bg-[#fffafa] text-[#243d38] hover:border-[#769c8d]'
+                          : 'border-[#d7e0d6] bg-[#fbfcfa] text-[#243d38] hover:border-[#769c8d]'
                     }`}
                     type="button"
                     key={opcao.valor}
@@ -386,58 +428,83 @@ export default function TermoCompromisso() {
                   </button>
                 ))}
               </div>
+
+              {erros.oferta && (
+                <span
+                  className="mt-1.5 block text-[11px] text-[#a34d46]"
+                  role="alert"
+                >
+                  {erros.oferta}
+                </span>
+              )}
             </div>
 
-            <Campo
+            <CampoFormulario
               label="Carga horária semanal"
               hint="Mínimo 4h e máximo 8h semanais (Art. 5º da Deliberação CEETEPS n. 111/2026)"
+              erro={erros.cargaHoraria}
             >
               <input
-                className={campoClassName}
+                className={classeCampo(erros.cargaHoraria)}
                 type="number"
                 name="cargaHoraria"
                 value={termo.cargaHoraria}
                 onChange={handleChange}
-                required
+                aria-invalid={Boolean(erros.cargaHoraria)}
                 min={4}
                 max={8}
+                step={1}
                 placeholder="Ex.: 6"
               />
-            </Campo>
+            </CampoFormulario>
 
-            <Campo label="Edital nº">
+            <CampoFormulario
+              label="Edital nº"
+              hint="Formato número/ano"
+              erro={erros.editalNumero}
+            >
               <input
-                className={campoClassName}
+                className={classeCampo(erros.editalNumero)}
                 type="text"
                 name="editalNumero"
                 value={termo.editalNumero}
                 onChange={handleChange}
-                required
+                aria-invalid={Boolean(erros.editalNumero)}
                 placeholder="Ex.: 04/2026"
               />
-            </Campo>
+            </CampoFormulario>
 
-            <Campo label="Período letivo — início">
+            <CampoFormulario
+              label="Período letivo — início"
+              erro={erros.periodoInicio}
+            >
               <input
-                className={campoClassName}
+                className={classeCampo(erros.periodoInicio)}
                 type="date"
                 name="periodoInicio"
                 value={termo.periodoInicio}
                 onChange={handleChange}
-                required
+                aria-invalid={Boolean(erros.periodoInicio)}
+                min={dataMinimaPeriodo}
+                max={dataMaximaPeriodo}
               />
-            </Campo>
+            </CampoFormulario>
 
-            <Campo label="Período letivo — fim">
+            <CampoFormulario
+              label="Período letivo — fim"
+              erro={erros.periodoFim}
+            >
               <input
-                className={campoClassName}
+                className={classeCampo(erros.periodoFim)}
                 type="date"
                 name="periodoFim"
                 value={termo.periodoFim}
                 onChange={handleChange}
-                required
+                aria-invalid={Boolean(erros.periodoFim)}
+                min={termo.periodoInicio || dataMinimaPeriodo}
+                max={dataMaximaPeriodo}
               />
-            </Campo>
+            </CampoFormulario>
           </Secao>
 
           <Secao
@@ -446,31 +513,37 @@ export default function TermoCompromisso() {
             description="Conforme a Cláusula Sétima do Termo."
           >
             <div className="sm:col-span-2">
-              <Campo label="Nome completo do(a) Professor(a) Orientador(a) Responsável">
+              <CampoFormulario
+                label="Nome completo do(a) Professor(a) Orientador(a) Responsável"
+                erro={erros.nomeProfessor}
+              >
                 <input
-                  className={campoClassName}
+                  className={classeCampo(erros.nomeProfessor)}
                   type="text"
                   name="nomeProfessor"
                   value={termo.nomeProfessor}
                   onChange={handleChange}
-                  required
+                  aria-invalid={Boolean(erros.nomeProfessor)}
                   placeholder="Nome completo do(a) professor(a)"
                 />
-              </Campo>
+              </CampoFormulario>
             </div>
 
             <div className="sm:col-span-2">
-              <Campo label="Nome completo do(a) Coordenador(a) do Curso">
+              <CampoFormulario
+                label="Nome completo do(a) Coordenador(a) do Curso"
+                erro={erros.nomeCoordenador}
+              >
                 <input
-                  className={campoClassName}
+                  className={classeCampo(erros.nomeCoordenador)}
                   type="text"
                   name="nomeCoordenador"
                   value={termo.nomeCoordenador}
                   onChange={handleChange}
-                  required
+                  aria-invalid={Boolean(erros.nomeCoordenador)}
                   placeholder="Nome completo do(a) coordenador(a)"
                 />
-              </Campo>
+              </CampoFormulario>
             </div>
           </Secao>
 
@@ -479,54 +552,43 @@ export default function TermoCompromisso() {
             title="Dados finais do Termo"
             description="Usados no fechamento do documento, conforme as Disposições Finais."
           >
-            <Campo label="Unidade">
-              <input
-                className={`${campoClassName} cursor-not-allowed bg-[#f1f3ef] text-[#68766e]`}
-                type="text"
-                value={UNIDADE_FATEC}
-                disabled
-                readOnly
-              />
-            </Campo>
+            <CampoFixo label="Unidade" valor={UNIDADE_FATEC} />
 
-            <Campo label="Cidade">
-              <input
-                className={campoClassName}
-                type="text"
-                name="cidade"
-                value={termo.cidade}
-                onChange={handleChange}
-                required
-                placeholder="Ex.: São Paulo"
-              />
-            </Campo>
+            <CampoFixo label="Cidade" valor={CIDADE_FATEC} />
 
-            <Campo label="Data de assinatura">
+            <CampoFormulario
+              label="Data de assinatura"
+              erro={erros.dataAssinatura}
+            >
               <input
-                className={campoClassName}
+                className={classeCampo(erros.dataAssinatura)}
                 type="date"
                 name="dataAssinatura"
                 value={termo.dataAssinatura}
                 onChange={handleChange}
-                required
+                aria-invalid={Boolean(erros.dataAssinatura)}
+                max={hoje}
               />
-            </Campo>
+            </CampoFormulario>
 
-            <Campo
+            <CampoFormulario
               label="Número de vias"
               hint="Quantas vias de igual teor serão firmadas"
+              erro={erros.numeroVias}
             >
               <input
-                className={campoClassName}
+                className={classeCampo(erros.numeroVias)}
                 type="number"
                 name="numeroVias"
                 value={termo.numeroVias}
                 onChange={handleChange}
-                required
+                aria-invalid={Boolean(erros.numeroVias)}
                 min={1}
+                max={10}
+                step={1}
                 placeholder="Ex.: 3"
               />
-            </Campo>
+            </CampoFormulario>
           </Secao>
 
           <Secao
@@ -535,15 +597,33 @@ export default function TermoCompromisso() {
             description="Assine no campo abaixo para confirmar o compromisso descrito neste Termo."
           >
             <div className="sm:col-span-2">
-              <SignatureCanvas
-                ref={sigPadRef}
-                penColor="#243d38"
-                canvasProps={{
-                  className:
-                    'h-40 w-full rounded-[9px] border border-[#d7e0d6] bg-white',
-                }}
-                onEnd={() => setAssinaturaVazia(false)}
-              />
+              <div
+                data-invalido={Boolean(erros.assinatura)}
+                tabIndex={-1}
+                className="outline-none"
+              >
+                <SignatureCanvas
+                  ref={sigPadRef}
+                  penColor="#243d38"
+                  canvasProps={{
+                    className: `h-40 w-full rounded-[9px] border bg-white ${
+                      erros.assinatura
+                        ? 'border-[#c9736b]'
+                        : 'border-[#d7e0d6]'
+                    }`,
+                  }}
+                  onEnd={handleFimAssinatura}
+                />
+              </div>
+
+              {erros.assinatura && (
+                <span
+                  className="mt-1.5 block text-[11px] text-[#a34d46]"
+                  role="alert"
+                >
+                  {erros.assinatura}
+                </span>
+              )}
 
               <div className="mt-2.5 flex items-center justify-between">
                 <span className="text-[11px] text-[#88958d]">
@@ -571,6 +651,12 @@ export default function TermoCompromisso() {
 
             <span aria-hidden="true">→</span>
           </button>
+
+          {Object.keys(erros).length > 0 && (
+            <p className="m-0 text-xs text-[#a34d46]" role="alert">
+              Corrija os campos destacados em vermelho antes de enviar.
+            </p>
+          )}
 
           {erro && (
             <p className="m-0 text-xs text-[#a34d46]" role="alert">
