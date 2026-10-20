@@ -5,17 +5,23 @@ import {
   autenticarMonitor,
   cadastrarConta,
   cadastrarMonitor,
+  verificarDisponibilidade,
 } from '../../api/monitorApi'
-import { salvarSessao } from '../../services/authStorage'
+import { salvarCadastroPendente, salvarSessao } from '../../services/authStorage'
 import { cursosFatecZonaLeste } from '../../data/cursosFatecZonaLeste'
+import { camposDoErro, filtrarCampos, mensagemDoErro } from '../../utils/errosApi'
 import { classeCampo } from '../../utils/estilosFormulario'
 import {
   TAMANHO_MINIMO_SENHA,
   focarPrimeiroCampoInvalido,
   normalizarEspacos,
   validarCadastro,
+  validarEmail,
+  validarRa,
 } from '../../utils/validacoes'
 import CampoFormulario from './CampoFormulario'
+
+const CAMPOS_DO_FORMULARIO = ['nome', 'ra', 'email', 'curso', 'senha']
 
 function IconeOlho({ aberto }) {
   return (
@@ -70,6 +76,43 @@ export default function MonitorSignupForm() {
     )
   }
 
+  // Ao sair do campo de e-mail ou RA, pergunta ao back se já está em uso.
+  // O back exige um e-mail válido, então o RA só é conferido com o e-mail certo.
+  async function verificarCampoRepetido(campo) {
+    const email = formulario.email.trim()
+    const ra = formulario.ra.trim()
+
+    if (validarEmail(email)) return
+    if (campo === 'ra' && validarRa(ra)) return
+
+    try {
+      await verificarDisponibilidade({
+        email,
+        ra: campo === 'ra' ? ra : undefined,
+      })
+    } catch (requestError) {
+      const mensagem = camposDoErro(requestError)[campo]
+
+      if (requestError.response?.status === 409 && mensagem) {
+        setErros((errosAtuais) => ({ ...errosAtuais, [campo]: mensagem }))
+      }
+      // qualquer outro erro (rede, por exemplo) é ignorado aqui: o envio confere de novo
+    }
+  }
+
+  // Mostra os erros que vieram do back embaixo de cada campo.
+  function mostrarErrosDoBack(requestError) {
+    const campos = filtrarCampos(camposDoErro(requestError), CAMPOS_DO_FORMULARIO)
+
+    if (Object.keys(campos).length > 0) {
+      setErros(campos)
+      focarPrimeiroCampoInvalido(formRef.current)
+      return true
+    }
+
+    return false
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
 
@@ -86,8 +129,8 @@ export default function MonitorSignupForm() {
 
     setEnviando(true)
 
-    // A senha só vai para a criação da conta: nunca para /monitores
-    // nem para o state da navegação.
+    // A senha só vai para a criação da conta: nunca para /monitores,
+    // nem para o state da navegação, nem para o armazenamento do navegador.
     const { senha, ...resto } = formulario
 
     const dadosMonitor = {
@@ -98,51 +141,85 @@ export default function MonitorSignupForm() {
     }
 
     try {
-      await cadastrarConta({
-        nome: dadosMonitor.nome,
-        email: dadosMonitor.email,
-        senha,
-      })
-    } catch (requestError) {
-      if (requestError.response?.status === 409) {
-        setErro(
-          'Este e-mail já possui conta. Entre com ela ou use outro e-mail.'
-        )
-      } else {
-        setErro(
-          'Não foi possível criar sua conta. Confira os dados e tente novamente.'
-        )
+      // Confere e-mail e RA antes de criar qualquer coisa: evita conta criada sem monitor.
+      try {
+        await verificarDisponibilidade({
+          email: dadosMonitor.email,
+          ra: dadosMonitor.ra,
+        })
+      } catch (requestError) {
+        const status = requestError.response?.status
+
+        if (status === 409 || status === 400) {
+          if (!mostrarErrosDoBack(requestError)) {
+            setErro(mensagemDoErro(requestError, 'Confira os dados e tente novamente.'))
+          }
+        } else {
+          setErro('Não foi possível conectar ao servidor. Tente novamente em instantes.')
+        }
+
+        console.error(requestError)
+        return
       }
 
-      console.error(requestError)
-      setEnviando(false)
-      return
-    }
+      let conta
 
-    // Entra automaticamente com a conta recém-criada (não bloqueia o fluxo se falhar).
-    try {
-      const resposta = await autenticarMonitor({
-        email: dadosMonitor.email,
-        senha,
-      })
+      try {
+        conta = await cadastrarConta({
+          nome: dadosMonitor.nome,
+          email: dadosMonitor.email,
+          senha,
+        })
+      } catch (requestError) {
+        if (!mostrarErrosDoBack(requestError)) {
+          setErro(
+            mensagemDoErro(
+              requestError,
+              'Não foi possível criar sua conta. Confira os dados e tente novamente.'
+            )
+          )
+        }
 
-      salvarSessao({ token: resposta.token, usuario: resposta.usuario })
-    } catch (requestError) {
-      console.error(requestError)
-    }
+        console.error(requestError)
+        return
+      }
 
-    try {
-      const monitor = await cadastrarMonitor(dadosMonitor)
+      // E-mail ainda precisa ser confirmado: guarda os dados e vai para a tela do código.
+      if (conta?.emailPendenteVerificacao) {
+        salvarCadastroPendente(dadosMonitor)
+        navigate('/cadastro/verificar', {
+          state: { email: dadosMonitor.email },
+        })
+        return
+      }
 
-      navigate('/cadastro/termo', {
-        state: { ...dadosMonitor, idMonitor: monitor?.id },
-      })
-    } catch (requestError) {
-      setErro(
-        'Sua conta foi criada, mas não foi possível concluir o cadastro. Tente novamente em instantes ou entre com seu e-mail e senha.'
-      )
+      // Confirmação desligada: entra automaticamente (não bloqueia o fluxo se falhar).
+      try {
+        const resposta = await autenticarMonitor({
+          email: dadosMonitor.email,
+          senha,
+        })
 
-      console.error(requestError)
+        salvarSessao({ token: resposta.token, usuario: resposta.usuario })
+      } catch (requestError) {
+        console.error(requestError)
+      }
+
+      try {
+        const monitor = await cadastrarMonitor(dadosMonitor)
+
+        navigate('/cadastro/termo', {
+          state: { ...dadosMonitor, idMonitor: monitor?.id },
+        })
+      } catch (requestError) {
+        if (!mostrarErrosDoBack(requestError)) {
+          setErro(
+            'Sua conta foi criada, mas não foi possível concluir o cadastro. Tente novamente em instantes ou entre com seu e-mail e senha.'
+          )
+        }
+
+        console.error(requestError)
+      }
     } finally {
       setEnviando(false)
     }
@@ -168,16 +245,21 @@ export default function MonitorSignupForm() {
         />
       </CampoFormulario>
 
-      <CampoFormulario label="E-mail institucional" erro={erros.email}>
+      <CampoFormulario
+        label="E-mail"
+        hint="Enviaremos um código de confirmação para ele"
+        erro={erros.email}
+      >
         <input
           className={classeCampo(erros.email)}
           type="email"
           name="email"
           value={formulario.email}
           onChange={handleChange}
+          onBlur={() => verificarCampoRepetido('email')}
           aria-invalid={Boolean(erros.email)}
           autoComplete="email"
-          placeholder="voce@fatec.sp.gov.br"
+          placeholder="voce@email.com"
         />
       </CampoFormulario>
 
@@ -188,6 +270,7 @@ export default function MonitorSignupForm() {
           name="ra"
           value={formulario.ra}
           onChange={handleChange}
+          onBlur={() => verificarCampoRepetido('ra')}
           aria-invalid={Boolean(erros.ra)}
           inputMode="numeric"
           maxLength={13}

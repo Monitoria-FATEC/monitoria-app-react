@@ -6,6 +6,7 @@ import {
   rotaInicialPorPerfil,
   salvarSessao,
 } from '../../services/authStorage'
+import { mensagemDoErro } from '../../utils/errosApi'
 
 const formularioInicial = {
   email: '',
@@ -43,10 +44,23 @@ export default function LoginForm() {
 
       navigate(rotaInicialPorPerfil(resposta.usuario?.role), { replace: true })
     } catch (requestError) {
-      if (requestError.response?.status === 401) {
+      const status = requestError.response?.status
+      const mensagem = mensagemDoErro(requestError, '')
+
+      if (status === 403 && /confirme seu e-mail/i.test(mensagem)) {
+        // senha certa, mas o e-mail ainda não foi confirmado: pede um código novo e abre a tela
+        navigate('/cadastro/verificar', {
+          state: { email: formulario.email.trim(), reenviarAoEntrar: true },
+        })
+        return
+      }
+
+      if (status === 401) {
         setErro(
           'E-mail ou senha incorretos. Confira os dados e tente novamente.'
         )
+      } else if (status === 403 && mensagem) {
+        setErro(mensagem)
       } else {
         setErro(
           'Não foi possível conectar ao servidor. Tente novamente em instantes.'
@@ -62,9 +76,7 @@ export default function LoginForm() {
   return (
     <form className="grid gap-4.25" onSubmit={handleSubmit}>
       <label className="grid gap-1.5">
-        <span className="text-xs font-bold text-[#39544c]">
-          E-mail institucional
-        </span>
+        <span className="text-xs font-bold text-[#39544c]">E-mail</span>
 
         <input
           className={campoClassName}
@@ -73,7 +85,7 @@ export default function LoginForm() {
           value={formulario.email}
           onChange={handleChange}
           required
-          placeholder="voce@fatec.sp.gov.br"
+          placeholder="voce@email.com"
         />
       </label>
 
