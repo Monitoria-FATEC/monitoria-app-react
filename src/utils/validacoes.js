@@ -1,5 +1,7 @@
 // Validações compartilhadas do pré-cadastro e do termo de compromisso.
-export const EXIGIR_EMAIL_INSTITUCIONAL = true
+// O e-mail institucional pode mudar, então qualquer e-mail válido é aceito.
+// Para voltar a exigir só o domínio da Fatec, troque para true.
+export const EXIGIR_EMAIL_INSTITUCIONAL = false
 export const DOMINIO_INSTITUCIONAL = 'fatec.sp.gov.br'
 
 export const TAMANHO_MINIMO_SENHA = 6
@@ -121,7 +123,7 @@ export function validarNomeCompleto(valor) {
 export function validarEmail(valor) {
   const email = String(valor ?? '').trim()
 
-  if (!email) return 'Informe o e-mail institucional.'
+  if (!email) return 'Informe o e-mail.'
 
   const [usuario = ''] = email.split('@')
 
@@ -136,7 +138,7 @@ export function validarEmail(valor) {
     !usuario.endsWith('.')
 
   if (!formatoValido) {
-    return `Informe um e-mail válido, como voce@${DOMINIO_INSTITUCIONAL}.`
+    return 'Informe um e-mail válido, como nome@dominio.com.'
   }
 
   if (
@@ -301,6 +303,113 @@ export function validarNumeroVias(valor) {
   }
 
   return ''
+}
+
+// ----------------------------------------------------------- telefone e links
+
+// Só os dígitos, sem o 55 do país: "+55 (11) 98765-4321" vira "11987654321".
+function telefoneNacional(valor) {
+  let digitos = String(valor ?? '').replace(/\D/g, '')
+
+  if ((digitos.length === 12 || digitos.length === 13) && digitos.startsWith('55')) {
+    digitos = digitos.slice(2)
+  }
+
+  return digitos
+}
+
+// Máscara enquanto a pessoa digita: (11) 98765-4321 ou (11) 2345-6789.
+export function formatarTelefone(valor) {
+  const digitos = telefoneNacional(valor).slice(0, 11)
+
+  if (digitos.length === 0) return ''
+  if (digitos.length <= 2) return `(${digitos}`
+  if (digitos.length <= 6) return `(${digitos.slice(0, 2)}) ${digitos.slice(2)}`
+
+  const corte = digitos.length === 11 ? 7 : 6
+
+  return `(${digitos.slice(0, 2)}) ${digitos.slice(2, corte)}-${digitos.slice(corte)}`
+}
+
+// Opcional: vazio é aceito. Mesmas regras do back (celular com 9, fixo com 2 a 5).
+export function validarTelefone(valor) {
+  const texto = String(valor ?? '').trim()
+
+  if (!texto) return ''
+
+  if (!/^[\d\s()+-]+$/.test(texto)) {
+    return 'O telefone só pode ter números, espaços, parênteses e hífen.'
+  }
+
+  const numero = telefoneNacional(texto)
+
+  if (numero.length !== 10 && numero.length !== 11) {
+    return 'Informe o telefone com DDD, como (11) 98765-4321.'
+  }
+
+  if (numero[0] === '0' || numero[1] === '0') {
+    return 'DDD inválido. Confira os dois primeiros dígitos.'
+  }
+
+  if (numero.length === 11 && numero[2] !== '9') {
+    return 'Celular com DDD precisa começar com 9 depois do DDD.'
+  }
+
+  if (numero.length === 10 && !/[2-5]/.test(numero[2])) {
+    return 'Telefone fixo inválido. Confira o número.'
+  }
+
+  if (/^(\d)\1+$/.test(numero.slice(2))) {
+    return 'Informe um telefone válido.'
+  }
+
+  return ''
+}
+
+export function validarLinkWhatsapp(valor) {
+  const link = String(valor ?? '').trim()
+
+  if (!link) return ''
+
+  if (link.length > 500) return 'O link deve ter no máximo 500 caracteres.'
+
+  if (!/^https:\/\/(wa\.me|api\.whatsapp\.com|chat\.whatsapp\.com|web\.whatsapp\.com|whatsapp\.com)\/\S*$/i.test(link)) {
+    return 'Use um link do WhatsApp, como https://wa.me/5511987654321.'
+  }
+
+  return ''
+}
+
+export function validarLinkTeams(valor) {
+  const link = String(valor ?? '').trim()
+
+  if (!link) return ''
+
+  if (link.length > 500) return 'O link deve ter no máximo 500 caracteres.'
+
+  if (!/^https:\/\/(teams\.microsoft\.com|teams\.live\.com|teams\.cloud\.microsoft)\/\S*$/i.test(link)) {
+    return 'Use o link da reunião do Teams, como https://teams.microsoft.com/...'
+  }
+
+  return ''
+}
+
+export function validarPerfil(perfil) {
+  const erros = {
+    telefone: validarTelefone(perfil.telefone),
+    localAtendimento:
+      String(perfil.localAtendimento ?? '').trim().length > 100
+        ? 'O local deve ter no máximo 100 caracteres.'
+        : '',
+    horariosAtendimento:
+      String(perfil.horariosAtendimento ?? '').trim().length > 200
+        ? 'Os horários devem ter no máximo 200 caracteres.'
+        : '',
+    linkWhatsapp: validarLinkWhatsapp(perfil.linkWhatsapp),
+    linkTeams: validarLinkTeams(perfil.linkTeams),
+  }
+
+  return removerVazios(erros)
 }
 
 // ---------------------------------------------------------------- formulários

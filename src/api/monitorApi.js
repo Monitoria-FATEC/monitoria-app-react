@@ -48,6 +48,26 @@ export async function cadastrarConta({ nome, email, senha }) {
   return response.data;
 }
 
+// 200 se o e-mail (e o RA, quando enviado) estão livres; 409 com os campos em uso.
+export async function verificarDisponibilidade({ email, ra }) {
+  const response = await axiosClient.post("/auth/disponibilidade", { email, ra });
+  return response.data;
+}
+
+// Confirma o e-mail com o código recebido. Devolve o token, como o login.
+export async function confirmarEmail({ email, codigo }) {
+  const response = await axiosClient.post("/auth/verificar-email", {
+    email,
+    codigo,
+  });
+  return response.data;
+}
+
+export async function reenviarCodigoEmail({ email }) {
+  const response = await axiosClient.post("/auth/reenviar-codigo", { email });
+  return response.data;
+}
+
 export async function buscarDashboardMonitor() {
   const response = await axiosClient.get('/monitores/me/dashboard')
   return response.data

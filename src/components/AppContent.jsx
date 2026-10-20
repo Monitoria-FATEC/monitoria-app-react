@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Home from '../pages/home/Home'
 import PreCadastro from '../pages/cadastro/PreCadastro'
+import VerificarEmail from '../pages/cadastro/VerificarEmail'
 import TermoCompromisso from '../pages/termo/TermoCompromisso'
 import Login from '../pages/login/Login'
 import SupervisorPainel from '../pages/supervisor/SupervisorPainel'
@@ -18,6 +19,7 @@ export default function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/cadastro" element={<PreCadastro />} />
+        <Route path="/cadastro/verificar" element={<VerificarEmail />} />
         <Route path="/cadastro/termo" element={<TermoCompromisso />} />
         <Route path="/entrar" element={<Login />} />
         <Route path="/esqueci-senha" element={<EsqueciSenha />} />
