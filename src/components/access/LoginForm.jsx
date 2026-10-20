@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { autenticarMonitor } from '../../api/monitorApi'
 import {
@@ -77,10 +77,25 @@ export default function LoginForm() {
         />
       </label>
 
-      <label className="grid gap-1.5">
-        <span className="text-xs font-bold text-[#39544c]">Senha</span>
+      <div className="grid gap-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <label
+            className="text-xs font-bold text-[#39544c]"
+            htmlFor="login-senha"
+          >
+            Senha
+          </label>
+
+          <Link
+            className="text-[11px] font-medium text-[#315c50] underline decoration-[#315c50]/40 underline-offset-4 hover:decoration-[#315c50]"
+            to="/esqueci-senha"
+          >
+            Esqueceu sua senha?
+          </Link>
+        </div>
 
         <input
+          id="login-senha"
           className={campoClassName}
           type="password"
           name="senha"
@@ -90,7 +105,7 @@ export default function LoginForm() {
           placeholder="Sua senha"
           minLength={6}
         />
-      </label>
+      </div>
 
       <button
         className="flex items-center justify-between rounded-[9px] border-0 bg-[#0d3524] px-4.25 py-3.75 text-sm font-bold text-white transition hover:-translate-y-px hover:bg-[#315c50] disabled:cursor-wait disabled:opacity-60"
