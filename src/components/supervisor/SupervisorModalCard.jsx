@@ -22,13 +22,21 @@ function Dado({ rotulo, valor }) {
     );
 }
 
-export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolver, desabilitado }) {
+export default function SupervisorModalCard({
+    form,
+    onClose,
+    onAprovar,
+    onDevolver,
+    onEnviarAssinatura,
+    onHomologar,
+    desabilitado,
+}) {
 
     const [verTermo, setVerTermo] = useState(false);
 
     if (!form) return null;
 
-    const { id, name, ra, status, course, discipline, date, period, signatureDate, termId, email, signature, justificativa, monitor, termo, termoDados } = form;
+    const { id, name, ra, status, course, discipline, date, period, signatureDate, termId, email, signature, justificativa, monitor, termo, termoDados, enviado, dataEnvio } = form;
 
     const bloqueio = desabilitado ? "opacity-50 pointer-events-none" : ""
 
@@ -39,6 +47,8 @@ export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolv
         if (normalizar(monitor.ra) !== normalizar(termo.ra)) divergencias.push("RA")
         if (normalizar(monitor.curso) !== normalizar(termo.curso)) divergencias.push("curso")
     }
+
+    const temAcoes = status === "aguardando" || status === "encaminhado"
 
     return (
 
@@ -69,6 +79,21 @@ export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolv
                   <div className="p-4 border border-amber-300 bg-amber-50 rounded-2xl mb-4 text-sm text-amber-800" role="alert">
                     <span className="font-bold">Atenção:</span> {divergencias.join(", ")} do cadastro
                     {" "}não confere com o que consta no termo. Verifique antes de aprovar.
+                  </div>
+                )}
+
+                {status === "encaminhado" && (
+                  <div className="p-4 border border-gray-200 bg-white rounded-2xl mb-4 text-sm text-[#2E4039]">
+                    <p className="font-bold mb-1">Fase de assinatura da Gestão</p>
+                    <p className="text-[#68766e]">
+                      1. Baixe o termo em PDF (botão abaixo) e envie à Gestão por e-mail.<br />
+                      2. Clique em <span className="font-bold">Marcar PDF como enviado</span>.<br />
+                      3. Quando a Gestão devolver assinado, clique em <span className="font-bold">Homologar</span>
+                      {" "}para liberar a conta e agência do monitor.
+                    </p>
+                    <p className={`mt-3 font-bold ${enviado ? "text-green-700" : "text-amber-700"}`}>
+                      {enviado ? `PDF enviado à Gestão em ${dataEnvio}` : "PDF ainda não enviado à Gestão"}
+                    </p>
                   </div>
                 )}
 
@@ -129,7 +154,7 @@ export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolv
                 </div>
             </div>
 
-            {(termo || status === "aguardando") && (
+            {(termo || temAcoes) && (
                 <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-gray-200 p-6">
                     {termo && (
                         <Button onClick={() => setVerTermo(true)}>Visualizar termo (PDF)</Button>
@@ -137,7 +162,17 @@ export default function SupervisorModalCard({ form, onClose, onAprovar, onDevolv
                     {status === "aguardando" && (
                         <>
                             <Button variant="reprovar" className={bloqueio} onClick={() => onDevolver(id)}>Devolver</Button>
-                            <Button variant="aprovar" className={bloqueio} onClick={() => onAprovar(id)}>Aprovar e encaminhar à Gestão</Button>
+                            <Button variant="aprovar" className={bloqueio} onClick={() => onAprovar(id)}>Aprovar e iniciar assinatura</Button>
+                        </>
+                    )}
+                    {status === "encaminhado" && (
+                        <>
+                            <Button variant="reprovar" className={bloqueio} onClick={() => onDevolver(id)}>Devolver</Button>
+                            {enviado ? (
+                                <Button variant="aprovar" className={bloqueio} onClick={() => onHomologar(id)}>Homologar</Button>
+                            ) : (
+                                <Button variant="aprovar" className={bloqueio} onClick={() => onEnviarAssinatura(id)}>Marcar PDF como enviado</Button>
+                            )}
                         </>
                     )}
                 </div>

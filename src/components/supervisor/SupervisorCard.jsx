@@ -1,8 +1,16 @@
 import Button from "./SupervisorButton";
 
-export default function SupervisorCard({ form, onClick, onAprovar, onDevolver, desabilitado }) {
+export default function SupervisorCard({
+  form,
+  onClick,
+  onAprovar,
+  onDevolver,
+  onEnviarAssinatura,
+  onHomologar,
+  desabilitado,
+}) {
 
-  const { id, name, ra, status, course, discipline, date, justificativa } = form;
+  const { id, name, ra, status, course, discipline, date, justificativa, enviado, dataEnvio } = form;
 
   const bloqueio = desabilitado ? "opacity-50 pointer-events-none" : "";
 
@@ -34,10 +42,35 @@ export default function SupervisorCard({ form, onClick, onAprovar, onDevolver, d
         </p>
       )}
 
+      {status === "encaminhado" && (
+        <p
+          className={`mt-4 rounded-xl border p-3 text-sm ${
+            enviado
+              ? "border-green-200 bg-green-50 text-green-800"
+              : "border-amber-200 bg-amber-50 text-amber-800"
+          }`}
+        >
+          {enviado
+            ? `PDF enviado à Gestão em ${dataEnvio}. Quando ela assinar, homologue.`
+            : "PDF ainda não enviado à Gestão."}
+        </p>
+      )}
+
       {status === "aguardando" && (
         <div className="flex items-center gap-2 mt-6 flex-wrap">
           <Button variant="reprovar" className={bloqueio} onClick={() => onDevolver(id)}>Devolver</Button>
-          <Button variant="aprovar" className={bloqueio} onClick={() => onAprovar(id)}>Aprovar e encaminhar à Gestão</Button>
+          <Button variant="aprovar" className={bloqueio} onClick={() => onAprovar(id)}>Aprovar e iniciar assinatura</Button>
+        </div>
+      )}
+
+      {status === "encaminhado" && (
+        <div className="flex items-center gap-2 mt-6 flex-wrap">
+          <Button variant="reprovar" className={bloqueio} onClick={() => onDevolver(id)}>Devolver</Button>
+          {enviado ? (
+            <Button variant="aprovar" className={bloqueio} onClick={() => onHomologar(id)}>Homologar</Button>
+          ) : (
+            <Button variant="aprovar" className={bloqueio} onClick={() => onEnviarAssinatura(id)}>Marcar PDF como enviado</Button>
+          )}
         </div>
       )}
     </article>

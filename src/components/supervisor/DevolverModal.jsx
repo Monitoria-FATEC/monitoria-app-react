@@ -11,7 +11,19 @@ function hojeIso() {
     return `${hoje.getFullYear()}-${mes}-${dia}`;
 }
 
-export default function DevolverModal({ form, enviando, onConfirmar, onCancelar }) {
+// Os textos têm padrão para a devolução da ficha; a tela de conta e agência
+// passa os próprios.
+export default function DevolverModal({
+    form,
+    enviando,
+    onConfirmar,
+    onCancelar,
+    titulo = "Devolver entrada ao monitor",
+    complemento = "O monitor verá este motivo para corrigir e reenviar.",
+    placeholder = "Ex.: Assinatura ilegível. Assine novamente e reenvie o termo.",
+    rotuloBotao = "Devolver ficha",
+    rotuloEnviando = "Devolvendo...",
+}) {
     const [justificativa, setJustificativa] = useState("");
     const [prazo, setPrazo] = useState("");
 
@@ -39,12 +51,12 @@ export default function DevolverModal({ form, enviando, onConfirmar, onCancelar 
                 className="w-full max-w-lg rounded-2xl bg-[#FAF9F6] p-6 shadow-xl"
             >
                 <h2 id="devolver-titulo" className="text-xl font-bold text-[#2E4039]">
-                    Devolver entrada ao monitor
+                    {titulo}
                 </h2>
 
                 <p className="mt-2 text-sm text-[#939E95]">
-                    Ficha de <span className="font-bold text-[#2E4039]">{form.name}</span>
-                    {" "}(RA {form.ra}). O monitor verá este motivo para corrigir e reenviar.
+                    Monitor <span className="font-bold text-[#2E4039]">{form.name}</span>
+                    {" "}(RA {form.ra}). {complemento}
                 </p>
 
                 <label className="mt-4 flex flex-col gap-1.5">
@@ -58,7 +70,7 @@ export default function DevolverModal({ form, enviando, onConfirmar, onCancelar 
                         rows={5}
                         autoFocus
                         required
-                        placeholder="Ex.: Assinatura ilegível. Assine novamente e reenvie o termo."
+                        placeholder={placeholder}
                         className="w-full resize-none rounded-xl border border-gray-200 bg-white p-3 text-sm text-[#2E4039] outline-none placeholder:text-[#a2ada5] focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15"
                     />
                     <span className="self-end text-xs text-gray-400">
@@ -87,7 +99,7 @@ export default function DevolverModal({ form, enviando, onConfirmar, onCancelar 
                         disabled={!podeEnviar}
                         className="rounded-xl border border-red-500 bg-red-500 p-2 px-4 text-sm font-bold text-white transition-all hover:bg-white hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {enviando ? "Devolvendo..." : "Devolver ficha"}
+                        {enviando ? rotuloEnviando : rotuloBotao}
                     </button>
                 </div>
             </form>

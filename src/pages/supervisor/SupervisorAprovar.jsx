@@ -5,14 +5,17 @@ import DevolverModal from "../../components/supervisor/DevolverModal";
 import {
     aprovarInscricao,
     devolverInscricao,
+    enviarInscricaoParaAssinatura,
+    homologarInscricao,
     listarInscricoes,
 } from "../../api/inscricaoApi";
 
 // Cada aba do painel corresponde a um status da inscrição no back.
+// "Em assinatura": o supervisor já aprovou e o termo está com a Gestão (fora do sistema).
 const statusData = [
     { id: "aguardando", title: "Aguardando", backend: "AGUARDANDO_SUPERVISOR" },
-    { id: "encaminhado", title: "Encaminhados", backend: "AGUARDANDO_GESTAO" },
-    { id: "aprovado", title: "Aprovados", backend: "HOMOLOGADA" },
+    { id: "encaminhado", title: "Em assinatura", backend: "AGUARDANDO_GESTAO" },
+    { id: "aprovado", title: "Homologados", backend: "HOMOLOGADA" },
     { id: "devolvido", title: "Devolvidos", backend: "DEVOLVIDA" },
 ];
 
@@ -58,6 +61,8 @@ function paraForm(inscricao, tabId) {
         termId: termo?.id ? `#${termo.id.slice(0, 8)}` : "—",
         signature: termo?.assinaturaEstudante ?? null,
         justificativa: inscricao.justificativaDevolucao ?? null,
+        enviado: Boolean(inscricao.enviadoParaAssinatura),
+        dataEnvio: formatarDataHora(inscricao.dataEnvioAssinatura),
         monitor: monitor ?? null,
         termo: termo ?? null,
         termoDados: termo
@@ -135,39 +140,51 @@ export default function SupervisorAprovar() {
         setModalAberto(false);
     }
 
-    async function handleAprovar(id) {
+    // Roda uma ação do back, fecha o painel lateral e recarrega as listas.
+    async function executar(acao, mensagemPadrao) {
         setProcessando(true);
         setErro(null);
 
         try {
-            await aprovarInscricao(id);
+            await acao();
             fecharModal();
             await carregar();
         } catch (requestError) {
             console.error(requestError);
-            setErro(mensagemDeErro(requestError, "Não foi possível aprovar a ficha."));
+            setErro(mensagemDeErro(requestError, mensagemPadrao));
         } finally {
             setProcessando(false);
         }
     }
 
-    // MUDANÇA 1 de 2: recebe o prazo escolhido no modal
-    async function handleDevolver(justificativa, prazo) {
-        setProcessando(true);
-        setErro(null);
+    function handleAprovar(id) {
+        return executar(() => aprovarInscricao(id), "Não foi possível aprovar a ficha.");
+    }
 
-        try {
-            // MUDANÇA 2 de 2: envia o prazo para o back
+    function handleEnviarAssinatura(id) {
+        return executar(
+            () => enviarInscricaoParaAssinatura(id),
+            "Não foi possível marcar o PDF como enviado."
+        );
+    }
+
+    function handleHomologar(id) {
+        const ficha = forms.find((form) => form.id === id);
+        const confirmou = window.confirm(
+            `Confirmar que a Gestão assinou o termo de ${ficha?.name ?? "este monitor"}? ` +
+            "O monitor poderá enviar conta e agência."
+        );
+        if (!confirmou) return;
+
+        return executar(() => homologarInscricao(id), "Não foi possível homologar a ficha.");
+    }
+
+    // recebe o prazo escolhido no modal
+    function handleDevolver(justificativa, prazo) {
+        return executar(async () => {
             await devolverInscricao(devolvendoId, justificativa, prazo);
             setDevolvendoId(null);
-            fecharModal();
-            await carregar();
-        } catch (requestError) {
-            console.error(requestError);
-            setErro(mensagemDeErro(requestError, "Não foi possível devolver a ficha."));
-        } finally {
-            setProcessando(false);
-        }
+        }, "Não foi possível devolver a ficha.");
     }
 
     //filtra os forms para cada tab
@@ -218,6 +235,8 @@ export default function SupervisorAprovar() {
                             }}
                             onAprovar={handleAprovar}
                             onDevolver={setDevolvendoId}
+                            onEnviarAssinatura={handleEnviarAssinatura}
+                            onHomologar={handleHomologar}
                             desabilitado={processando}
                         />
                     ))
@@ -239,6 +258,8 @@ export default function SupervisorAprovar() {
                         form={modalForm}
                         onAprovar={handleAprovar}
                         onDevolver={setDevolvendoId}
+                        onEnviarAssinatura={handleEnviarAssinatura}
+                        onHomologar={handleHomologar}
                         onClose={fecharModal}
                         desabilitado={processando}
                     />
