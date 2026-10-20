@@ -9,7 +9,8 @@ export async function listarInscricoes(status) {
   return response.data;
 }
 
-// Supervisor aprova: a inscrição vai para a Gestão.
+// Supervisor aprova a ficha: ela passa para a fase de assinatura da Gestão
+// (AGUARDANDO_GESTAO, aba "Em assinatura").
 export async function aprovarInscricao(id) {
   const response = await axiosClient.patch(`/inscricoes/${id}/aprovar`);
   return response.data;
@@ -25,14 +26,15 @@ export async function devolverInscricao(id, justificativa, dataLimite) {
   return response.data;
 }
 
-// Gestão: marca que o PDF foi baixado e enviado para assinatura
-// (para o aluno continua AGUARDANDO_GESTAO).
+// Supervisor marca que enviou o PDF do termo à Gestão (por e-mail, fora do sistema).
+// Para o aluno continua AGUARDANDO_GESTAO.
 export async function enviarInscricaoParaAssinatura(id) {
   const response = await axiosClient.patch(`/inscricoes/${id}/enviar-assinatura`);
   return response.data;
 }
 
-// Gestão: homologa depois de assinado fora do sistema.
+// Supervisor homologa depois que a Gestão assinou fora do sistema.
+// Libera o envio de conta e agência para o monitor.
 export async function homologarInscricao(id) {
   const response = await axiosClient.patch(`/inscricoes/${id}/homologar`);
   return response.data;
