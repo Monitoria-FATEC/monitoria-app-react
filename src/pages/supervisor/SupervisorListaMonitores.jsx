@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import SearchBar from "../../components/supervisor/Searchbar";
+import Button from "../../components/supervisor/SupervisorButton";
 import MonitorCard from "../../components/supervisor/MonitorCard";
 import MonitorCardModal from "../../components/supervisor/MonitorCardModal";
 import ExcluirMonitorModal from "../../components/supervisor/ExcluirMonitorModal";
+import NovoMonitorModal from "../../components/supervisor/NovoMonitorModal";
+import NovaSenhaModal from "../../components/supervisor/NovaSenhaModal";
 import ConformationModal from "../../components/ConfirmationModal";
 import {
   alterarAtivoMonitor,
@@ -40,6 +43,8 @@ export default function SupervisorListaMonitores() {
   const [modalOpen, setModalOpen] = useState(false);
   const [idParaDesativar, setIdParaDesativar] = useState(null);
   const [monitorParaExcluir, setMonitorParaExcluir] = useState(null);
+  const [novoAberto, setNovoAberto] = useState(false);
+  const [monitorNovaSenha, setMonitorNovaSenha] = useState(null);
 
   const carregar = useCallback(async () => {
     try {
@@ -79,13 +84,39 @@ export default function SupervisorListaMonitores() {
     );
   }
 
-  function handleSolicitarDesativacao(id) {
-    setIdParaDesativar(id);
-    setModalOpen(true);
+  // Entra na lista na posição certa (ordem alfabética). O modal continua aberto mostrando a senha.
+  function handleMonitorCriado(monitor) {
+    setMonitores((anteriores) =>
+      [...anteriores, paraCard(monitor)].sort((a, b) =>
+        (a.nome ?? "").localeCompare(b.nome ?? "", "pt-BR", { sensitivity: "base" })
+      )
+    );
+    setErro(null);
+    setAviso(`${monitor.nome} foi cadastrado(a).`);
+  }
+
+  // Ativo: pede confirmação para desativar. Inativo: ativa na hora.
+  async function handleAlternarAtivo(monitor) {
+    if (monitor.ativo) {
+      setIdParaDesativar(monitor._id);
+      setModalOpen(true);
+      return;
+    }
+
+    try {
+      const resposta = await alterarAtivoMonitor(monitor._id, true);
+      substituir(resposta);
+      setErro(null);
+      setAviso(`${monitor.nome} foi reativado(a).`);
+    } catch (requestError) {
+      console.error(requestError);
+      setErro(mensagemDeErro(requestError, "Não foi possível ativar o monitor."));
+    }
   }
 
   async function handleConfirmarDesativacao() {
     const id = idParaDesativar;
+    const monitor = monitores.find((item) => item._id === id);
     setModalOpen(false);
     setIdParaDesativar(null);
     if (!id) return;
@@ -94,6 +125,9 @@ export default function SupervisorListaMonitores() {
       const resposta = await alterarAtivoMonitor(id, false);
       substituir(resposta);
       setErro(null);
+      setAviso(
+        `${monitor?.nome ?? "O monitor"} foi desativado(a). Para reativar, passe o mouse no card e clique em Ativar.`
+      );
     } catch (requestError) {
       console.error(requestError);
       setErro(mensagemDeErro(requestError, "Não foi possível desativar o monitor."));
@@ -180,8 +214,13 @@ export default function SupervisorListaMonitores() {
         </div>
       )}
 
-      <div className="py-2 border-b border-gray-200">
-        <SearchBar />
+      <div className="flex flex-wrap items-center gap-3 border-b border-gray-200 py-2">
+        <div className="min-w-[200px] flex-1">
+          <SearchBar />
+        </div>
+        <Button onClick={() => setNovoAberto(true)} variant="aprovar">
+          + Novo monitor
+        </Button>
       </div>
 
       {carregando && (
@@ -189,7 +228,9 @@ export default function SupervisorListaMonitores() {
       )}
 
       {!carregando && monitores.length === 0 && !erro && (
-        <p className="py-6 text-sm text-[#939E95]">Nenhum monitor cadastrado.</p>
+        <p className="py-6 text-sm text-[#939E95]">
+          Nenhum monitor cadastrado. Use <strong>+ Novo monitor</strong> para cadastrar o primeiro.
+        </p>
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 py-6">
@@ -198,7 +239,8 @@ export default function SupervisorListaMonitores() {
             key={monitor._id}
             form={monitor}
             onClick={() => setMonitorSelecionado(monitor)}
-            onDelete={() => handleSolicitarDesativacao(monitor._id)}
+            onAlternarAtivo={() => handleAlternarAtivo(monitor)}
+            onNovaSenha={() => setMonitorNovaSenha(monitor)}
             onExcluir={() => setMonitorParaExcluir(monitor)}
           />
         ))}
@@ -225,6 +267,17 @@ export default function SupervisorListaMonitores() {
         monitor={monitorParaExcluir}
         onCancelar={() => setMonitorParaExcluir(null)}
         onConfirmar={handleConfirmarExclusao}
+      />
+
+      <NovoMonitorModal
+        aberto={novoAberto}
+        onFechar={() => setNovoAberto(false)}
+        onCriado={handleMonitorCriado}
+      />
+
+      <NovaSenhaModal
+        monitor={monitorNovaSenha}
+        onFechar={() => setMonitorNovaSenha(null)}
       />
     </div>
   );

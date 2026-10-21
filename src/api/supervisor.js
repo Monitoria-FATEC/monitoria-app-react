@@ -6,6 +6,24 @@ export async function listarMonitores() {
   return response.data;
 }
 
+// Cadastro manual: cria a conta de acesso e o monitor.
+// Devolve { monitor, senhaTemporaria } (a senha só aparece nesta resposta).
+export async function criarMonitor({ nome, ra, email, curso }) {
+  const response = await axiosClient.post("/monitores/gestao", {
+    nome,
+    ra,
+    email,
+    curso,
+  });
+  return response.data;
+}
+
+// Gera outra senha temporária para o monitor. Devolve { email, senhaTemporaria }.
+export async function gerarSenhaTemporariaMonitor(id) {
+  const response = await axiosClient.post(`/monitores/${id}/senha-temporaria`);
+  return response.data;
+}
+
 // Edita nome, e-mail, curso, conta e agência. O RA não muda.
 export async function atualizarMonitor(id, { nome, email, curso, numeroConta, agencia }) {
   const response = await axiosClient.put(`/monitores/${id}/gestao`, {

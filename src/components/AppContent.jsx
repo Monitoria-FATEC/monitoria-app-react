@@ -12,6 +12,7 @@ import MonitorDashboard from '../pages/monitor/MonitorDashboard'
 import EsqueciSenha from '../pages/senha/EsqueciSenha'
 import VerificarCodigo from '../pages/senha/VerificarCodigo'
 import RedefinirSenha from '../pages/senha/RedefinirSenha'
+import TrocarSenhaTemporaria from '../pages/senha/TrocarSenhaTemporaria'
 
 export default function AppContent() {
   return (
@@ -22,6 +23,7 @@ export default function AppContent() {
         <Route path="/cadastro/verificar" element={<VerificarEmail />} />
         <Route path="/cadastro/termo" element={<TermoCompromisso />} />
         <Route path="/entrar" element={<Login />} />
+        <Route path="/trocar-senha" element={<TrocarSenhaTemporaria />} />
         <Route path="/esqueci-senha" element={<EsqueciSenha />} />
         <Route
           path="/esqueci-senha/verificar"
