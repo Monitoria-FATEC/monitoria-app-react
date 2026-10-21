@@ -22,6 +22,36 @@ export function limparSessao() {
   localStorage.removeItem(CHAVE_SESSAO)
 }
 
+// O token JWT carrega a data de validade ("exp", em segundos) no meio do texto.
+function tokenExpirado(token) {
+  try {
+    const carga = token.split('.')[1]
+    const json = atob(carga.replace(/-/g, '+').replace(/_/g, '/'))
+    const { exp } = JSON.parse(json)
+
+    return typeof exp === 'number' && exp * 1000 <= Date.now()
+  } catch {
+    // não deu para ler a validade: deixa o servidor decidir
+    return false
+  }
+}
+
+// Igual a lerSessao, mas descarta (e apaga) a sessão se o token já venceu.
+export function lerSessaoValida() {
+  const sessao = lerSessao()
+
+  if (!sessao?.token) {
+    return null
+  }
+
+  if (tokenExpirado(sessao.token)) {
+    limparSessao()
+    return null
+  }
+
+  return sessao
+}
+
 // Dados do aluno (nome, RA, e-mail, curso) guardados enquanto o e-mail não foi confirmado.
 // A senha NUNCA entra aqui.
 export function salvarCadastroPendente(dados) {

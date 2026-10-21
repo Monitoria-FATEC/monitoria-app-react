@@ -23,3 +23,15 @@ export async function alterarAtivoMonitor(id, ativo) {
   const response = await axiosClient.patch(`/monitores/${id}/ativo`, { ativo });
   return response.data;
 }
+
+// Mostra o que a exclusão vai apagar (não apaga nada): conta de acesso, termos e inscrições.
+export async function resumirExclusaoMonitor(id) {
+  const response = await axiosClient.get(`/monitores/${id}/exclusao`);
+  return response.data;
+}
+
+// Exclusão definitiva do monitor, da conta de acesso, dos termos e das inscrições.
+export async function excluirMonitor(id) {
+  const response = await axiosClient.delete(`/monitores/${id}`);
+  return response.data;
+}

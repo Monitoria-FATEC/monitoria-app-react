@@ -1,10 +1,21 @@
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 
 import LoginForm from '../../components/access/LoginForm'
+import {
+  lerSessaoValida,
+  rotaInicialPorPerfil,
+} from '../../services/authStorage'
 
 import loginImage from '../../assets/img/cadastro/login.png'
 
 export default function Login() {
+  const sessao = lerSessaoValida()
+
+  // já está logado: vai direto para o painel do perfil
+  if (sessao?.token) {
+    return <Navigate to={rotaInicialPorPerfil(sessao.usuario?.role)} replace />
+  }
+
   return (
     <main className="min-h-screen bg-white text-[#243d38] lg:grid lg:grid-cols-2">
       <div className="relative hidden min-h-65 overflow-hidden lg:block">

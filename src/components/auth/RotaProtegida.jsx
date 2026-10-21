@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom'
 
-import { lerSessao } from '../../services/authStorage'
+import { lerSessaoValida } from '../../services/authStorage'
 
 // Uso como "layout" de rotas:
 //   <Route element={<RotaProtegida perfis={['SUPERVISOR', 'ADMIN']} />}>
@@ -10,7 +10,7 @@ import { lerSessao } from '../../services/authStorage'
 // Uso envolvendo um elemento:
 //   <RotaProtegida perfis={['SUPERVISOR']}><SupervisorPainel /></RotaProtegida>
 export default function RotaProtegida({ perfis, children }) {
-  const sessao = lerSessao()
+  const sessao = lerSessaoValida()
 
   if (!sessao?.token) {
     return <Navigate to="/entrar" replace />
