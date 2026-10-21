@@ -16,6 +16,11 @@ export default function RotaProtegida({ perfis, children }) {
     return <Navigate to="/entrar" replace />
   }
 
+  // entrou com a senha temporária do supervisor: precisa criar a própria antes de continuar
+  if (sessao.usuario?.senhaTemporaria) {
+    return <Navigate to="/trocar-senha" replace />
+  }
+
   if (perfis && !perfis.includes(sessao.usuario?.role)) {
     return <Navigate to="/" replace />
   }

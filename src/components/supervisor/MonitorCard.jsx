@@ -1,6 +1,6 @@
 import Button from "./SupervisorButton";
 
-export default function MonitorCard({ form, onClick, onDelete, onExcluir }) {
+export default function MonitorCard({ form, onClick, onAlternarAtivo, onNovaSenha, onExcluir }) {
   const { nome, email, ativo, role, agencia, conta } = form;
 
   return (
@@ -26,8 +26,11 @@ export default function MonitorCard({ form, onClick, onDelete, onExcluir }) {
         </div>
       </button>
       <div className="group-hover:flex group-hover:opacity-100 group-hover:visible opacity-0 invisible rounded-xl absolute flex-wrap items-center justify-center top-0 left-0 gap-2 w-full h-full z-10 bg-black/20 backdrop-blur-sm">
-        <Button onClick={onDelete} variant="reprovar">Desativar</Button>
+        <Button onClick={onAlternarAtivo} variant={ativo ? "reprovar" : "ativar"}>
+          {ativo ? "Desativar" : "Ativar"}
+        </Button>
         <Button onClick={onClick} variant="default">Editar</Button>
+        <Button onClick={onNovaSenha} variant="default">Nova senha</Button>
         <Button onClick={onExcluir} variant="excluir">Excluir</Button>
       </div>
     </article>

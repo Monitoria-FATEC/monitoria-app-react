@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom'
+
 function formatarData(valor) {
   if (!valor) return ''
   const [ano, mes, dia] = String(valor).split('T')[0].split('-')
@@ -73,7 +75,11 @@ function proximoPasso(d, contaLiberada, perfilLiberado) {
   }
 
   if (!inscricao) {
-    return { titulo: 'Envie o seu termo', texto: 'Você ainda não enviou o termo de compromisso. Faça o envio para começar a análise.' }
+    return {
+      titulo: 'Envie o seu termo',
+      texto: 'Você ainda não enviou o termo de compromisso. Preencha e assine para começar a análise.',
+      botao: { rotulo: 'Preencher termo', acao: 'preencher-termo' },
+    }
   }
 
   if (inscricao === 'AGUARDANDO_SUPERVISOR') {
@@ -117,12 +123,27 @@ function proximoPasso(d, contaLiberada, perfilLiberado) {
 }
 
 export default function MonitorInicio({ dashboard, contaLiberada, perfilLiberado, onEditarTermo, onIrPara }) {
+  const navigate = useNavigate()
   const primeiroNome = (dashboard.nome || 'Monitor').split(' ')[0]
   const etapas = montarEtapas(dashboard, contaLiberada, perfilLiberado)
   const passo = proximoPasso(dashboard, contaLiberada, perfilLiberado)
 
+  // Primeiro envio do termo: abre o formulário com os dados que já estão no cadastro do monitor.
+  function irParaTermo() {
+    navigate('/cadastro/termo', {
+      state: {
+        nome: dashboard.nome,
+        ra: dashboard.ra,
+        email: dashboard.email,
+        curso: dashboard.curso,
+        idMonitor: dashboard.id,
+      },
+    })
+  }
+
   function clicarBotao() {
-    if (passo.botao.acao === 'termo') onEditarTermo()
+    if (passo.botao.acao === 'preencher-termo') irParaTermo()
+    else if (passo.botao.acao === 'termo') onEditarTermo()
     else onIrPara(passo.botao.acao)
   }
 
