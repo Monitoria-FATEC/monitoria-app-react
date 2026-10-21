@@ -182,6 +182,7 @@ export default function MonitorDashboard() {
               {aba === 'conta' && (
                 <ContaAgenciaForm
                   liberado={contaLiberada}
+                  dashboard={dashboard}
                   conta={conta}
                   onChange={setConta}
                   onSubmit={(event) => {
