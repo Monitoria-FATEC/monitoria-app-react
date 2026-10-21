@@ -12,6 +12,7 @@ export default function Button({
         default: "bg-white text-black border border-gray-200 hover:border-gray-400",
         aprovar: "bg-[#2F5146] text-white border border-transparent hover:text-[#2F5146] hover:bg-white hover:border-[#2F5146]",
         reprovar: "bg-white border border-red-200 text-red-500 hover:border-red-500 hover:bg-red-500 hover:text-white",
+        excluir: "bg-red-500 border border-red-500 text-white hover:bg-red-600 hover:border-red-600",
         // outline: "border border-gray-300 text-gray-700 hover:bg-gray-100"
     };
 

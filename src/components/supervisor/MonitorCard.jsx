@@ -1,6 +1,6 @@
 import Button from "./SupervisorButton";
 
-export default function MonitorCard({ form, onClick, onDelete }) {
+export default function MonitorCard({ form, onClick, onDelete, onExcluir }) {
   const { nome, email, ativo, role, agencia, conta } = form;
 
   return (
@@ -25,9 +25,10 @@ export default function MonitorCard({ form, onClick, onDelete }) {
           <p>agencia: <span className="font-bold text-[#2E4039]">{agencia || "—"}</span></p>
         </div>
       </button>
-      <div className="group-hover:flex group-hover:opacity-100 group-hover:visible opacity-0 invisible rounded-xl absolute items-center justify-center top-0 left-0  gap-4 w-full h-full z-10 bg-black/20 backdrop-blur-sm">
+      <div className="group-hover:flex group-hover:opacity-100 group-hover:visible opacity-0 invisible rounded-xl absolute flex-wrap items-center justify-center top-0 left-0 gap-2 w-full h-full z-10 bg-black/20 backdrop-blur-sm">
         <Button onClick={onDelete} variant="reprovar">Desativar</Button>
         <Button onClick={onClick} variant="default">Editar</Button>
+        <Button onClick={onExcluir} variant="excluir">Excluir</Button>
       </div>
     </article>
   );

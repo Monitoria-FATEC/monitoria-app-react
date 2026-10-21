@@ -2,10 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import SearchBar from "../../components/supervisor/Searchbar";
 import MonitorCard from "../../components/supervisor/MonitorCard";
 import MonitorCardModal from "../../components/supervisor/MonitorCardModal";
+import ExcluirMonitorModal from "../../components/supervisor/ExcluirMonitorModal";
 import ConformationModal from "../../components/ConfirmationModal";
 import {
   alterarAtivoMonitor,
   atualizarMonitor,
+  excluirMonitor,
   listarMonitores,
 } from "../../api/supervisor";
 
@@ -32,10 +34,12 @@ export default function SupervisorListaMonitores() {
   const [monitores, setMonitores] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
+  const [aviso, setAviso] = useState(null);
 
   const [monitorSelecionado, setMonitorSelecionado] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [idParaDesativar, setIdParaDesativar] = useState(null);
+  const [monitorParaExcluir, setMonitorParaExcluir] = useState(null);
 
   const carregar = useCallback(async () => {
     try {
@@ -58,6 +62,14 @@ export default function SupervisorListaMonitores() {
   useEffect(() => {
     carregar();
   }, [carregar]);
+
+  // O aviso de sucesso some sozinho depois de alguns segundos.
+  useEffect(() => {
+    if (!aviso) return undefined;
+
+    const timer = setTimeout(() => setAviso(null), 6000);
+    return () => clearTimeout(timer);
+  }, [aviso]);
 
   function substituir(monitorAtualizado) {
     setMonitores((anteriores) =>
@@ -86,6 +98,19 @@ export default function SupervisorListaMonitores() {
       console.error(requestError);
       setErro(mensagemDeErro(requestError, "Não foi possível desativar o monitor."));
     }
+  }
+
+  // Se der erro, o modal de exclusão mostra a mensagem e continua aberto.
+  async function handleConfirmarExclusao(monitor) {
+    const resumo = await excluirMonitor(monitor._id);
+
+    setMonitores((anteriores) => anteriores.filter((item) => item._id !== monitor._id));
+    setMonitorParaExcluir(null);
+    setErro(null);
+    setAviso(
+      `${resumo.nome} foi excluído(a): ${resumo.inscricoes} inscrição(ões) e ${resumo.termos} termo(s) apagados` +
+        (resumo.contaDeAcesso ? ", além da conta de acesso." : ".")
+    );
   }
 
   async function handleSalvarMonitor(atualizado) {
@@ -136,6 +161,25 @@ export default function SupervisorListaMonitores() {
         </div>
       )}
 
+      {aviso && (
+        <div
+          className="fixed right-4 top-4 z-[60] max-w-md rounded-xl bg-[#e6f2ea] px-4 py-3 text-sm text-[#2F5146] shadow-lg"
+          role="status"
+        >
+          <div className="flex items-start gap-3">
+            <span>{aviso}</span>
+            <button
+              type="button"
+              onClick={() => setAviso(null)}
+              aria-label="Fechar aviso"
+              className="cursor-pointer text-[#2F5146]"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="py-2 border-b border-gray-200">
         <SearchBar />
       </div>
@@ -155,6 +199,7 @@ export default function SupervisorListaMonitores() {
             form={monitor}
             onClick={() => setMonitorSelecionado(monitor)}
             onDelete={() => handleSolicitarDesativacao(monitor._id)}
+            onExcluir={() => setMonitorParaExcluir(monitor)}
           />
         ))}
       </div>
@@ -174,6 +219,12 @@ export default function SupervisorListaMonitores() {
           setIdParaDesativar(null);
         }}
         onConfirm={handleConfirmarDesativacao}
+      />
+
+      <ExcluirMonitorModal
+        monitor={monitorParaExcluir}
+        onCancelar={() => setMonitorParaExcluir(null)}
+        onConfirmar={handleConfirmarExclusao}
       />
     </div>
   );
