@@ -5,7 +5,7 @@ import axiosClient from './axiosClient'
 // funcionando só no front, com dados de exemplo guardados na memória da página.
 // Quando as rotas existirem, troque para false: o resto do código não muda.
 // ---------------------------------------------------------------------------
-export const USAR_MOCK = true
+export const USAR_MOCK = false
 
 function diaAtras(dias) {
   const data = new Date()
@@ -31,15 +31,15 @@ function falhar(status, message) {
   return Promise.reject({ response: { status, data: { message } } })
 }
 
-// GET /monitor/atendimentos -> [{ id, aluno, atividade, data, inicio, termino }]
+// GET /monitores/me/atendimentos -> [{ id, aluno, atividade, data, inicio, termino }]
 export async function listarRegistros() {
   if (USAR_MOCK) return responder(registrosMock)
 
-  const resposta = await axiosClient.get('/monitor/atendimentos')
+  const resposta = await axiosClient.get('/monitores/me/atendimentos')
   return resposta.data
 }
 
-// POST /monitor/atendimentos  { aluno, atividade, data, inicio, termino }
+// POST /monitores/me/atendimentos  { aluno, atividade, data, inicio, termino }
 export async function criarRegistro(dados) {
   if (USAR_MOCK) {
     const registro = { id: `r${proximoId}`, ...dados }
@@ -48,11 +48,11 @@ export async function criarRegistro(dados) {
     return responder(registro)
   }
 
-  const resposta = await axiosClient.post('/monitor/atendimentos', dados)
+  const resposta = await axiosClient.post('/monitores/me/atendimentos', dados)
   return resposta.data
 }
 
-// PUT /monitor/atendimentos/{id}
+// PUT /monitores/me/atendimentos/{id}
 export async function atualizarRegistro(id, dados) {
   if (USAR_MOCK) {
     const registro = registrosMock.find((item) => item.id === id)
@@ -62,11 +62,11 @@ export async function atualizarRegistro(id, dados) {
     return responder(registro)
   }
 
-  const resposta = await axiosClient.put(`/monitor/atendimentos/${id}`, dados)
+  const resposta = await axiosClient.put(`/monitores/me/atendimentos/${id}`, dados)
   return resposta.data
 }
 
-// DELETE /monitor/atendimentos/{id}
+// DELETE /monitores/me/atendimentos/{id}
 export async function excluirRegistro(id) {
   if (USAR_MOCK) {
     const posicao = registrosMock.findIndex((item) => item.id === id)
@@ -76,6 +76,6 @@ export async function excluirRegistro(id) {
     return responder({})
   }
 
-  await axiosClient.delete(`/monitor/atendimentos/${id}`)
+  await axiosClient.delete(`/monitores/me/atendimentos/${id}`)
   return {}
 }
