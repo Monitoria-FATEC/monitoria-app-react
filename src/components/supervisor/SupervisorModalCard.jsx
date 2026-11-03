@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState } from "react";
 import Button from "./SupervisorButton";
+import HistoricoInscricao from "./HistoricoInscricao";
 
 // O PDF é pesado: só é carregado quando o supervisor pede para visualizar.
 const TermoPdfModal = lazy(() => import("./TermoPdfModal"));
@@ -36,7 +37,7 @@ export default function SupervisorModalCard({
 
     if (!form) return null;
 
-    const { id, name, ra, status, course, discipline, date, period, signatureDate, termId, email, signature, justificativa, monitor, termo, termoDados, enviado, dataEnvio } = form;
+    const { id, name, ra, status, course, discipline, date, period, signatureDate, termId, email, signature, justificativa, monitor, termo, termoDados, enviado, dataEnvio, historico } = form;
 
     const bloqueio = desabilitado ? "opacity-50 pointer-events-none" : ""
 
@@ -136,6 +137,8 @@ export default function SupervisorModalCard({
                     <p className="text-[#2E4039]">{justificativa}</p>
                   </div>
                 )}
+
+                <HistoricoInscricao historico={historico} />
 
                 <div className="p-6 border border-gray-200 bg-white rounded-2xl">
                   <p className="uppercase text-lg text-[#939E95] mb-4 font-bold">termo de compromisso - assinatura digital</p>

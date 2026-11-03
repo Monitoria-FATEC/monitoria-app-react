@@ -63,6 +63,7 @@ function paraForm(inscricao, tabId) {
         justificativa: inscricao.justificativaDevolucao ?? null,
         enviado: Boolean(inscricao.enviadoParaAssinatura),
         dataEnvio: formatarDataHora(inscricao.dataEnvioAssinatura),
+        historico: inscricao.historico ?? [],
         monitor: monitor ?? null,
         termo: termo ?? null,
         termoDados: termo
