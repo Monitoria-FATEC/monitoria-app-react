@@ -19,3 +19,49 @@ button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* ---------- Acessibilidade ---------- */
+
+/* Links destacados: sublinhados e em negrito. */
+html.destacar-links a:not([data-acessibilidade] *) {
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  font-weight: 700;
+}
+
+/* Alto contraste: fundo preto, letras brancas e links/botões amarelos.
+   A barra de acessibilidade e o VLibras ficam de fora para manter o visual deles. */
+html.alto-contraste,
+html.alto-contraste body {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+html.alto-contraste *:not([data-acessibilidade] *):not([vw] *):not([data-acessibilidade]):not([vw]) {
+  background-color: #000 !important;
+  background-image: none !important;
+  color: #fff !important;
+  border-color: #fff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+html.alto-contraste a:not([data-acessibilidade] *),
+html.alto-contraste button:not([data-acessibilidade] *) {
+  color: #ffd400 !important;
+}
+
+html.alto-contraste img:not([data-acessibilidade] *):not([vw] *) {
+  filter: grayscale(1) contrast(1.2);
+}
+
+html.alto-contraste input:not([data-acessibilidade] *)::placeholder,
+html.alto-contraste textarea:not([data-acessibilidade] *)::placeholder {
+  color: #ccc !important;
+}
+
+html.alto-contraste *:focus-visible {
+  outline: 3px solid #ffd400 !important;
+  outline-offset: 2px;
+}
