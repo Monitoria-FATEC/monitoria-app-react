@@ -7,6 +7,7 @@ import {
   lerPreferencias,
   salvarPreferencias,
 } from '../../utils/acessibilidade'
+import { ativarLeitor, leituraSuportada } from '../../utils/leitorDeTexto'
 
 function Interruptor({ rotulo, descricao, ligado, onChange }) {
   return (
@@ -50,6 +51,12 @@ export default function BarraAcessibilidade() {
     salvarPreferencias(preferencias)
   }, [preferencias])
 
+  // Leitor de texto: clicar ou tocar lê o trecho; com a opção do mouse, passar o mouse lê a palavra.
+  useEffect(() => {
+    if (!preferencias.leitor || !leituraSuportada()) return undefined
+    return ativarLeitor({ mouse: preferencias.leitorMouse })
+  }, [preferencias.leitor, preferencias.leitorMouse])
+
   // Esc fecha o painel e devolve o foco ao botão.
   useEffect(() => {
     if (!aberto) return undefined
@@ -77,7 +84,9 @@ export default function BarraAcessibilidade() {
   const emPadrao =
     preferencias.tamanho === PADRAO.tamanho &&
     preferencias.contraste === PADRAO.contraste &&
-    preferencias.links === PADRAO.links
+    preferencias.links === PADRAO.links &&
+    preferencias.leitor === PADRAO.leitor &&
+    preferencias.leitorMouse === PADRAO.leitorMouse
 
   const botaoTamanho =
     'h-10 min-w-10 cursor-pointer rounded-lg border border-gray-300 bg-white px-3 font-bold text-[#2E4039] hover:border-[#2F5146] disabled:cursor-not-allowed disabled:opacity-40'
@@ -155,6 +164,28 @@ export default function BarraAcessibilidade() {
               ligado={preferencias.links}
               onChange={() => setPreferencias((atual) => ({ ...atual, links: !atual.links }))}
             />
+            {leituraSuportada() ? (
+              <>
+                <Interruptor
+                  rotulo="Ler texto em voz alta"
+                  descricao="Clique ou toque num texto para ouvir. Esc para parar"
+                  ligado={preferencias.leitor}
+                  onChange={() => setPreferencias((atual) => ({ ...atual, leitor: !atual.leitor }))}
+                />
+                {preferencias.leitor && (
+                  <Interruptor
+                    rotulo="Ler ao passar o mouse"
+                    descricao="Lê a palavra sob o ponteiro (computador)"
+                    ligado={preferencias.leitorMouse}
+                    onChange={() => setPreferencias((atual) => ({ ...atual, leitorMouse: !atual.leitorMouse }))}
+                  />
+                )}
+              </>
+            ) : (
+              <p className="m-0 rounded-lg border border-gray-200 bg-white p-3 text-xs text-[#68766e]">
+                Este navegador não tem leitura em voz alta.
+              </p>
+            )}
           </div>
 
           <button

@@ -1,4 +1,4 @@
-// Preferências de acessibilidade (tamanho da letra, alto contraste e links destacados).
+// Preferências de acessibilidade (tamanho da letra, alto contraste, links destacados e leitor de texto).
 // Ficam salvas no navegador e valem para todas as telas, de qualquer perfil.
 
 const CHAVE = 'monitoria.acessibilidade'
@@ -6,7 +6,7 @@ const CHAVE = 'monitoria.acessibilidade'
 // Tamanhos da letra, em % do tamanho padrão do navegador.
 export const TAMANHOS = [100, 115, 130, 150]
 
-export const PADRAO = { tamanho: 0, contraste: false, links: false }
+export const PADRAO = { tamanho: 0, contraste: false, links: false, leitor: false, leitorMouse: false }
 
 export function lerPreferencias() {
   try {
@@ -18,6 +18,8 @@ export function lerPreferencias() {
       tamanho: Math.min(Math.max(tamanho, 0), TAMANHOS.length - 1),
       contraste: salvo.contraste === true,
       links: salvo.links === true,
+      leitor: salvo.leitor === true,
+      leitorMouse: salvo.leitorMouse === true,
     }
   } catch {
     // navegador sem armazenamento (janela anônima, por exemplo): usa o padrão
