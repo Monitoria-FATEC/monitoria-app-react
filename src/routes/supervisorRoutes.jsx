@@ -1,6 +1,7 @@
 import SupervisorAprovar from "../pages/supervisor/SupervisorAprovar";
 import SupervisorContaBanco from "../pages/supervisor/SupervisorContaBanco";
 import SupervisorHome from "../pages/supervisor/SupervisorHome";
+import SupervisorHorarios from "../pages/supervisor/SupervisorHorarios";
 import SupervisorListaMonitores from "../pages/supervisor/SupervisorListaMonitores";
 import SupervisorRelatorios from "../pages/supervisor/SupervisorRelatorios";
 
@@ -49,5 +50,14 @@ export const supervisorRoutes = [
     desc: 'Veja quem já entregou, quem está aguardando e quem está atrasado, e exporte o relatório em PDF ou Excel.',
     element: <SupervisorRelatorios />,
     icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="M18 17V9" /><path d="M13 17V5" /><path d="M8 17v-3" /></svg>
+  },
+  {
+    path: 'horarios',
+    label: 'Horários',
+    titulo: 'Horários dos monitores',
+    subtitulo: 'Consulte os horários e gere o PDF para a Fatec',
+    desc: 'Veja os dias e horários que cada monitor publicou, filtre por disciplina e baixe o PDF para expor na Fatec.',
+    element: <SupervisorHorarios />,
+    icon: <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
   },
 ]

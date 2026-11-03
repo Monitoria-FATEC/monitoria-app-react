@@ -45,7 +45,7 @@ export default function Footer() {
             Explorar
           </h3>
 
-          <a className={linkClass} href="#encontrar">
+          <a className={linkClass} href="/monitorias">
             Encontrar monitoria
           </a>
 

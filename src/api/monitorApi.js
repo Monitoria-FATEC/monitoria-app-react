@@ -79,7 +79,11 @@ export async function salvarContaAgencia(dados) {
 }
 
 export async function salvarPerfilMonitor(dados) {
-  const response = await axiosClient.put('/monitores/me/perfil', dados)
+  const response = await axiosClient.put('/monitores/me/perfil', {
+    ...dados,
+    vigenciaInicio: dados.vigenciaInicio || null,
+    vigenciaFim: dados.vigenciaFim || null,
+  })
   return response.data
 }
 

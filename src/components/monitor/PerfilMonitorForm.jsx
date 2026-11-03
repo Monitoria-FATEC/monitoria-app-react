@@ -85,6 +85,29 @@ export default function PerfilMonitorForm({ liberado, perfil, onChange, onSubmit
               onChange={(event) => alterar('linkTeams', event.target.value)}
             />
           </div>
+          <fieldset className="grid gap-3 rounded-xl border border-[#e2e6df] p-4">
+            <legend className="px-1 text-xs font-bold text-[#39544c]">Vigência da monitoria</legend>
+            <p className="m-0 text-xs leading-relaxed text-[#68766e]">
+              Informe o período em que você atende (por exemplo, o semestre). Depois do fim, seu perfil deixa de
+              aparecer na página de monitorias para os alunos. A supervisão consegue ver esse período.
+            </p>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <FormField
+                label="Início da vigência"
+                type="date"
+                value={perfil.vigenciaInicio}
+                erro={erros.vigenciaInicio}
+                onChange={(event) => alterar('vigenciaInicio', event.target.value)}
+              />
+              <FormField
+                label="Fim da vigência"
+                type="date"
+                value={perfil.vigenciaFim}
+                erro={erros.vigenciaFim}
+                onChange={(event) => alterar('vigenciaFim', event.target.value)}
+              />
+            </div>
+          </fieldset>
           <button className="rounded-lg bg-[#315c50] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#24483d]">Salvar perfil →</button>
         </form>
       )}

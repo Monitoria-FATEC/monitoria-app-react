@@ -30,6 +30,20 @@ export const abasMonitor = [
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" x2="21" y1="22" y2="22" /><line x1="6" x2="6" y1="18" y2="11" /><line x1="10" x2="10" y1="18" y2="11" /><line x1="14" x2="14" y1="18" y2="11" /><line x1="18" x2="18" y1="18" y2="11" /><polygon points="12 2 20 7 4 7" /></svg>
     ),
   },
+  {
+    id: 'horarios',
+    label: 'Horários',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /></svg>
+    ),
+  },
+  {
+    id: 'atendimentos',
+    label: 'Ficha de atendimentos',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" /><path d="M14 2v5h6" /><path d="M9 13h6" /><path d="M9 17h6" /></svg>
+    ),
+  },
 ]
 
 export const metaDasAbas = {
@@ -52,6 +66,16 @@ export const metaDasAbas = {
     titulo: 'Conta e agência',
     subtitulo: 'Dados para pagamento',
     desc: 'Informe apenas o número da conta e a agência. O envio fica aguardando a análise da supervisão.',
+  },
+  horarios: {
+    titulo: 'Horários',
+    subtitulo: 'Agenda de atendimento',
+    desc: 'Publique os dias e horários em que você atende. A supervisão usa essas informações para divulgar a monitoria na Fatec.',
+  },
+  atendimentos: {
+    titulo: 'Ficha de atendimentos',
+    subtitulo: 'Registro dos seus atendimentos',
+    desc: 'Anote cada atendimento: aluno atendido, atividade realizada, início e término. A ficha comprova o seu atendimento.',
   },
   termo: {
     titulo: 'Editar termo',
