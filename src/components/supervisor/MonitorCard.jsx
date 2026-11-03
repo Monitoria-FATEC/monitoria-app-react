@@ -1,13 +1,13 @@
 import Button from "./SupervisorButton";
 
-export default function MonitorCard({ form, onClick, onAlternarAtivo, onNovaSenha, onExcluir }) {
+export default function MonitorCard({ form, onClick, onDetalhes, onAlternarAtivo, onNovaSenha, onExcluir }) {
   const { nome, email, ativo, role, agencia, conta } = form;
 
   return (
     <article className={`relative group  p-4 border border-gray-200 hover:border-gray-400 rounded-xl transition-all`}>
       <button
         type="button"
-        onClick={onClick}
+        onClick={onDetalhes}
         className={`block w-full cursor-pointer text-left ${ativo ? "opacity-100" : "opacity-50"}`}
         aria-label={`Ver detalhes do monitor ${nome}`}
       >
@@ -29,6 +29,7 @@ export default function MonitorCard({ form, onClick, onAlternarAtivo, onNovaSenh
         <Button onClick={onAlternarAtivo} variant={ativo ? "reprovar" : "ativar"}>
           {ativo ? "Desativar" : "Ativar"}
         </Button>
+        <Button onClick={onDetalhes} variant="default">Detalhes</Button>
         <Button onClick={onClick} variant="default">Editar</Button>
         <Button onClick={onNovaSenha} variant="default">Nova senha</Button>
         <Button onClick={onExcluir} variant="excluir">Excluir</Button>

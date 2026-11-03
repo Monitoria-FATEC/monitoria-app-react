@@ -3,6 +3,7 @@ import SearchBar from "../../components/supervisor/Searchbar";
 import Button from "../../components/supervisor/SupervisorButton";
 import MonitorCard from "../../components/supervisor/MonitorCard";
 import MonitorCardModal from "../../components/supervisor/MonitorCardModal";
+import MonitorDetalhesModal from "../../components/supervisor/MonitorDetalhesModal";
 import ExcluirMonitorModal from "../../components/supervisor/ExcluirMonitorModal";
 import NovoMonitorModal from "../../components/supervisor/NovoMonitorModal";
 import NovaSenhaModal from "../../components/supervisor/NovaSenhaModal";
@@ -40,6 +41,7 @@ export default function SupervisorListaMonitores() {
   const [aviso, setAviso] = useState(null);
 
   const [monitorSelecionado, setMonitorSelecionado] = useState(null);
+  const [monitorDetalhes, setMonitorDetalhes] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [idParaDesativar, setIdParaDesativar] = useState(null);
   const [monitorParaExcluir, setMonitorParaExcluir] = useState(null);
@@ -239,12 +241,22 @@ export default function SupervisorListaMonitores() {
             key={monitor._id}
             form={monitor}
             onClick={() => setMonitorSelecionado(monitor)}
+            onDetalhes={() => setMonitorDetalhes(monitor)}
             onAlternarAtivo={() => handleAlternarAtivo(monitor)}
             onNovaSenha={() => setMonitorNovaSenha(monitor)}
             onExcluir={() => setMonitorParaExcluir(monitor)}
           />
         ))}
       </div>
+
+      <MonitorDetalhesModal
+        monitor={monitorDetalhes}
+        onClose={() => setMonitorDetalhes(null)}
+        onEditar={(monitor) => {
+          setMonitorDetalhes(null);
+          setMonitorSelecionado(monitor);
+        }}
+      />
 
       <MonitorCardModal
         monitor={monitorSelecionado}
