@@ -217,7 +217,7 @@ export default function SupervisorListaMonitores() {
       )}
 
       <div className="flex flex-wrap items-center gap-3 border-b border-gray-200 py-2">
-        <div className="min-w-[200px] flex-1">
+        <div className="min-w-0 flex-1 basis-48">
           <SearchBar />
         </div>
         <Button onClick={() => setNovoAberto(true)} variant="aprovar">
@@ -235,7 +235,7 @@ export default function SupervisorListaMonitores() {
         </p>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 py-6">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-4 py-6">
         {monitores.map((monitor) => (
           <MonitorCard
             key={monitor._id}

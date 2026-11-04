@@ -104,7 +104,7 @@ export default function MonitorDetalhesModal({ monitor, onClose, onEditar }) {
       }}
       className="fixed inset-0 z-40 flex items-center justify-end bg-black/40 backdrop-blur-sm"
     >
-      <div className="h-full w-full p-2 sm:w-[640px]">
+      <div className="h-full w-full max-w-full p-2 sm:w-[640px]">
         <section
           role="dialog"
           aria-modal="true"

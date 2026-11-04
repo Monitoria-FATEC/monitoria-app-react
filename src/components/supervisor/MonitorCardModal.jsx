@@ -50,7 +50,7 @@ export default function MonitorCardModal({ monitor, onClose, onSave }) {
       }`}
     >
       <div
-        className={`h-full w-full p-2 transition-all sm:w-150 ${
+        className={`h-full w-full max-w-full p-2 transition-all sm:w-150 ${
           aberto ? "translate-x-0" : "translate-x-full"
         }`}
       >

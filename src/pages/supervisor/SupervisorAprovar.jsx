@@ -197,7 +197,7 @@ export default function SupervisorAprovar() {
 
     return (
         <div>
-            <div className="w-full flex items-center gap-4 border-b border-gray-200 px-6  ">
+            <div className="w-full flex flex-wrap items-center gap-x-4 border-b border-gray-200 px-6  ">
                 {statusData.map((tab) => (
                     <button
                         key={tab.id}
@@ -220,9 +220,9 @@ export default function SupervisorAprovar() {
                 </p>
             )}
 
-            <div className="grid grid-cols-3 gap-4 p-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4 p-6">
                 {carregando ? (
-                    <div className="col-span-3 text-center text-gray-500">
+                    <div className="col-span-full text-center text-gray-500">
                         Carregando fichas...
                     </div>
                 ) : filteredForms.length > 0 ? (
@@ -242,7 +242,7 @@ export default function SupervisorAprovar() {
                         />
                     ))
                 ) : (
-                    <div className="col-span-3 text-center text-gray-500">
+                    <div className="col-span-full text-center text-gray-500">
                         Nenhuma ficha encontrada.
                     </div>
                 )}
@@ -254,7 +254,7 @@ export default function SupervisorAprovar() {
                 }}
                 className={`fixed inset-0 z-40 flex items-center justify-end bg-black/40 backdrop-blur-sm transition-all duration-300 ease-in-out ${modalAberto ? "opacity-100 visible" : "opacity-0 invisible"}`}
             >
-                <div className={`${modalAberto ? "translate-x-0" : "translate-x-full"} transition-transform duration-300 ease-in-out h-full p-2 w-[800px]`}>
+                <div className={`${modalAberto ? "translate-x-0" : "translate-x-full"} transition-transform duration-300 ease-in-out h-full w-full max-w-[800px] p-2`}>
                     <SupervisorModalCard
                         form={modalForm}
                         onAprovar={handleAprovar}
