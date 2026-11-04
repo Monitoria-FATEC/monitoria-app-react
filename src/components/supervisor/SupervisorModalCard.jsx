@@ -141,7 +141,7 @@ export default function SupervisorModalCard({
                 <HistoricoInscricao historico={historico} />
 
                 <div className="p-6 border border-gray-200 bg-white rounded-2xl">
-                  <p className="uppercase text-lg text-[#939E95] mb-4 font-bold">termo de compromisso - assinatura digital</p>
+                  <p className="uppercase text-lg text-[#939E95] mb-4 font-bold">termo de compromisso - aceite eletrônico</p>
                   <div className="flex items-center justify-center mb-4 p-6 border border-gray-200 bg-[#FAF9F6] rounded-2xl h-[200px]">
                     {signature ? (
                       <img

@@ -163,7 +163,7 @@ export default function TermoPdf({ termo }) {
   const oferta = `de oferta ${marca('anual')} anual / ${marca('semestral')} semestral`
 
   const registro = t.dataEnvio
-    ? `Assinatura digital registrada no sistema em ${dataHoraBr(t.dataEnvio)}`
+    ? `Aceite eletrônico registrado no sistema em ${dataHoraBr(t.dataEnvio)}`
     : null
 
   return (
