@@ -22,6 +22,11 @@ a {
 
 /* ---------- Acessibilidade ---------- */
 
+/* O painel não acompanha o aumento da letra: o zoom desfaz a mudança feita na raiz. */
+[data-acessibilidade] {
+  zoom: var(--zoom-acessibilidade, 1);
+}
+
 /* Links destacados: sublinhados e em negrito. */
 html.destacar-links a:not([data-acessibilidade] *) {
   text-decoration: underline !important;

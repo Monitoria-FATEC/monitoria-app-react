@@ -7,7 +7,6 @@ import TermoCompromisso from '../pages/termo/TermoCompromisso'
 import Login from '../pages/login/Login'
 import SupervisorPainel from '../pages/supervisor/SupervisorPainel'
 import { supervisorRoutes } from '../routes/supervisorRoutes'
-import SupervisorHome from '../pages/supervisor/SupervisorHome'
 import RotaProtegida from './auth/RotaProtegida'
 import MonitorDashboard from '../pages/monitor/MonitorDashboard'
 import EsqueciSenha from '../pages/senha/EsqueciSenha'
@@ -53,7 +52,7 @@ export default function AppContent() {
         >
           {supervisorRoutes.map(({ index, path, element }) =>
             index ? (
-              <Route key={path} path={path} element={<SupervisorHome />} />
+              <Route key={path} index element={element} />
             ) : (
               <Route key={path} path={path} element={element} />
             )

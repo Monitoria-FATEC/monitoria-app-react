@@ -92,7 +92,7 @@ export default function BarraAcessibilidade() {
     'h-10 min-w-10 cursor-pointer rounded-lg border border-gray-300 bg-white px-3 font-bold text-[#2E4039] hover:border-[#2F5146] disabled:cursor-not-allowed disabled:opacity-40'
 
   return (
-    <div data-acessibilidade className="fixed bottom-4 right-4 z-[100] flex flex-col items-end font-sans">
+    <div data-acessibilidade className="fixed bottom-20 right-4 z-[100] flex flex-col items-end font-sans">
       {aberto && (
         <section
           id="painel-acessibilidade"

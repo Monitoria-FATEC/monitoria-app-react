@@ -79,7 +79,7 @@ export default function SupervisorHorarios() {
   if (carregando) return <p className="text-sm text-[#315c50]" role="status">Carregando horários...</p>
 
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-5 px-6">
       {erro && <div className="rounded-xl bg-[#fce8e5] px-4 py-3 text-sm text-[#a64e49]" role="alert">{erro}</div>}
 
       <div className="flex flex-wrap items-end gap-4 rounded-2xl border border-[#e2e6df] bg-white p-5">

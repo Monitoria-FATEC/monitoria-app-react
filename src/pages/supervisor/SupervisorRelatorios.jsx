@@ -161,7 +161,7 @@ export default function SupervisorRelatorios() {
                             </tr>
                         ) : (
                             visiveis.map((linha) => (
-                                <tr key={linha.id} className="border-t border-gray-100">
+                                <tr key={linha.id} className="border-t border-gray-100 bg-white even:bg-gray-100">
                                     <td className="p-3 font-bold text-[#2E4039]">{linha.nome}</td>
                                     <td className="p-3">{linha.ra}</td>
                                     <td className="p-3">{linha.disciplina}</td>

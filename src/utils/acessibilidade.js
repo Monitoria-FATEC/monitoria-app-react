@@ -36,10 +36,13 @@ export function salvarPreferencias(preferencias) {
 }
 
 // Aplica as preferências na página. O tamanho muda a fonte da raiz, e o Tailwind
-// (que usa rem) aumenta junto os textos, botões e espaçamentos.
+// (que usa rem) aumenta junto os textos, botões e espaçamentos. O painel de acessibilidade
+// recebe o zoom inverso (veja index.css) para manter sempre o mesmo tamanho.
 export function aplicarPreferencias({ tamanho, contraste, links }) {
   const raiz = document.documentElement
-  raiz.style.fontSize = `${TAMANHOS[tamanho] ?? 100}%`
+  const porcentagem = TAMANHOS[tamanho] ?? 100
+  raiz.style.fontSize = `${porcentagem}%`
+  raiz.style.setProperty('--zoom-acessibilidade', 100 / porcentagem)
   raiz.classList.toggle('alto-contraste', contraste)
   raiz.classList.toggle('destacar-links', links)
 }
