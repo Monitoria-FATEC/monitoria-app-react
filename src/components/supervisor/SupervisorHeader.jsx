@@ -3,8 +3,8 @@ import MenuUsuario from "../auth/MenuUsuario";
 
 export default function SupervisorHeader({titulo}) {
 	return(
-		<header className="flex w-full justify-between items-center p-6 shadow-2xs bg-[#E9F0E5]">
-			<h1 className="text-[#2E4039] font-bold text-3xl mb-2.5">{titulo}</h1>
+		<header className="flex w-full flex-wrap justify-between items-center gap-x-6 gap-y-2 p-6 shadow-2xs bg-[#E9F0E5]">
+			<h1 className="text-[#2E4039] font-bold text-2xl sm:text-3xl mb-2.5 break-words">{titulo}</h1>
 			<div className="flex items-center gap-6">
 				<Link
 					to="/"

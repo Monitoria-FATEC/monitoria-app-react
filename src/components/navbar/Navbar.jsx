@@ -40,6 +40,12 @@ export default function Navbar({ buttonBase }) {
     event.preventDefault()
 
     const alvo = id === 'inicio' ? null : document.getElementById(id)
+
+    // fora da página inicial a seção não existe: volta para a home
+    if (id !== 'inicio' && !alvo) {
+      navigate('/')
+      return
+    }
     const alturaBarra = barra.current?.offsetHeight ?? 0
     const topo = alvo
       ? alvo.getBoundingClientRect().top + window.scrollY - alturaBarra
@@ -94,13 +100,12 @@ export default function Navbar({ buttonBase }) {
             className="ml-auto flex gap-8 max-[900px]:gap-4 max-[760px]:hidden"
             aria-label="Navegação principal"
           >
-            <a
+            <Link
               className="text-sm text-[#5f6964] no-underline hover:text-[#243d38]"
-              href="#encontrar"
-              onClick={(event) => irPara(event, 'encontrar')}
+              to="/monitorias"
             >
               Encontrar monitoria
-            </a>
+            </Link>
 
             <a
               className="text-sm text-[#5f6964] no-underline hover:text-[#243d38]"

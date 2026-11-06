@@ -394,6 +394,15 @@ export function validarLinkTeams(valor) {
   return ''
 }
 
+// Vigência: as duas datas juntas (ou nenhuma) e o fim depois do início.
+function validarVigencia(inicio, fim) {
+  if (!inicio && !fim) return {}
+  if (!inicio) return { vigenciaInicio: 'Informe o início da vigência.' }
+  if (!fim) return { vigenciaFim: 'Informe o fim da vigência.' }
+  if (fim < inicio) return { vigenciaFim: 'O fim precisa ser depois do início.' }
+  return {}
+}
+
 export function validarPerfil(perfil) {
   const erros = {
     telefone: validarTelefone(perfil.telefone),
@@ -407,6 +416,7 @@ export function validarPerfil(perfil) {
         : '',
     linkWhatsapp: validarLinkWhatsapp(perfil.linkWhatsapp),
     linkTeams: validarLinkTeams(perfil.linkTeams),
+    ...validarVigencia(perfil.vigenciaInicio, perfil.vigenciaFim),
   }
 
   return removerVazios(erros)

@@ -10,6 +10,8 @@ import { lerSessao } from '../../services/authStorage'
 import { metaDasAbas } from '../../components/monitor/abasMonitor'
 import ContaAgenciaForm from '../../components/monitor/ContaAgenciaForm'
 import MonitorHeader from '../../components/monitor/MonitorHeader'
+import FichaAtendimentos from '../../components/monitor/FichaAtendimentos'
+import MonitorHorarios from '../../components/monitor/MonitorHorarios'
 import MonitorInicio from '../../components/monitor/MonitorInicio'
 import MonitorOverview from '../../components/monitor/MonitorOverview'
 import MonitorSidebar from '../../components/monitor/MonitorSidebar'
@@ -25,7 +27,15 @@ const dashboardInicial = {
 }
 
 const contaInicial = { numeroConta: '', agencia: '' }
-const perfilInicial = { telefone: '', localAtendimento: '', horariosAtendimento: '', linkWhatsapp: '', linkTeams: '' }
+const perfilInicial = {
+  telefone: '',
+  localAtendimento: '',
+  horariosAtendimento: '',
+  linkWhatsapp: '',
+  linkTeams: '',
+  vigenciaInicio: '',
+  vigenciaFim: '',
+}
 const termoInicial = {
   nomeEstudante: '',
   cpf: '',
@@ -65,6 +75,9 @@ export default function MonitorDashboard() {
         horariosAtendimento: dados.horariosAtendimento ?? '',
         linkWhatsapp: dados.linkWhatsapp ?? '',
         linkTeams: dados.linkTeams ?? '',
+        // sem vigência própria, começa com o período do termo de compromisso
+        vigenciaInicio: dados.vigenciaInicio ?? dados.periodoInicio ?? '',
+        vigenciaFim: dados.vigenciaFim ?? dados.periodoFim ?? '',
       })
     } catch (requestError) {
       console.error(requestError)
@@ -202,6 +215,26 @@ export default function MonitorDashboard() {
                     executarAcao(() => salvarPerfilMonitor(perfil), 'Perfil atualizado com sucesso.')
                   }}
                 />
+              )}
+
+              {aba === 'horarios' && (
+                perfilLiberado ? (
+                  <MonitorHorarios />
+                ) : (
+                  <div className="rounded-xl bg-[#f3f1ea] px-4 py-4 text-sm text-[#68766e]">
+                    Os horários ficam disponíveis depois que a supervisão aprovar sua conta e agência.
+                  </div>
+                )
+              )}
+
+              {aba === 'atendimentos' && (
+                perfilLiberado ? (
+                  <FichaAtendimentos nomeMonitor={nomeMonitor} />
+                ) : (
+                  <div className="rounded-xl bg-[#f3f1ea] px-4 py-4 text-sm text-[#68766e]">
+                    A ficha de atendimentos fica disponível depois que a supervisão aprovar sua conta e agência.
+                  </div>
+                )
               )}
 
               {aba === 'termo' && (

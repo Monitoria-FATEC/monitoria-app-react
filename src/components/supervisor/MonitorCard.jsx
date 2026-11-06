@@ -1,24 +1,24 @@
 import Button from "./SupervisorButton";
 
-export default function MonitorCard({ form, onClick, onAlternarAtivo, onNovaSenha, onExcluir }) {
+export default function MonitorCard({ form, onClick, onDetalhes, onAlternarAtivo, onNovaSenha, onExcluir }) {
   const { nome, email, ativo, role, agencia, conta } = form;
 
   return (
-    <article className={`relative group  p-4 border border-gray-200 hover:border-gray-400 rounded-xl transition-all`}>
+    <article className={`relative group min-w-0 p-4 border border-gray-200 hover:border-gray-400 rounded-xl transition-all`}>
       <button
         type="button"
-        onClick={onClick}
+        onClick={onDetalhes}
         className={`block w-full cursor-pointer text-left ${ativo ? "opacity-100" : "opacity-50"}`}
         aria-label={`Ver detalhes do monitor ${nome}`}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gray-300" />
-            <span className="font-bold text-[#2E4039]">{nome}</span>
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="h-8 w-8 shrink-0 rounded-full bg-gray-300" />
+            <span className="min-w-0 break-words font-bold text-[#2E4039]">{nome}</span>
           </div>
           <span className="font-bold text-[#2E4039]">{ativo ? "Ativo" : "Inativo"}</span>
         </div>
-        <div className="flex flex-col mt-6 gap-2 font-medium text-[#939E95]">
+        <div className="flex flex-col mt-6 gap-2 break-words font-medium text-[#939E95] [overflow-wrap:anywhere]">
           <p>email: <span className="font-bold text-[#2E4039]">{email || "—"}</span></p>
           <p>perfil: <span className="font-bold text-[#2E4039]">{role}</span></p>
           <p>conta: <span className="font-bold text-[#2E4039]">{conta || "—"}</span></p>
@@ -29,6 +29,7 @@ export default function MonitorCard({ form, onClick, onAlternarAtivo, onNovaSenh
         <Button onClick={onAlternarAtivo} variant={ativo ? "reprovar" : "ativar"}>
           {ativo ? "Desativar" : "Ativar"}
         </Button>
+        <Button onClick={onDetalhes} variant="default">Detalhes</Button>
         <Button onClick={onClick} variant="default">Editar</Button>
         <Button onClick={onNovaSenha} variant="default">Nova senha</Button>
         <Button onClick={onExcluir} variant="excluir">Excluir</Button>

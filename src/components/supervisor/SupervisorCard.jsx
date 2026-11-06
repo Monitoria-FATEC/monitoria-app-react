@@ -15,21 +15,21 @@ export default function SupervisorCard({
   const bloqueio = desabilitado ? "opacity-50 pointer-events-none" : "";
 
   return(
-    <article className="p-4 border border-gray-200 hover:border-gray-400 rounded-xl transition-all">
+    <article className="min-w-0 p-4 border border-gray-200 hover:border-gray-400 rounded-xl transition-all">
       <button
         type="button"
         onClick={onClick}
         className="block w-full cursor-pointer text-left"
         aria-label={`Ver detalhes da solicitação de ${name}`}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gray-300" />
-            <span className="font-bold text-[#2E4039]">{name}</span>
+        <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="h-8 w-8 shrink-0 rounded-full bg-gray-300" />
+            <span className="min-w-0 break-words font-bold text-[#2E4039]">{name}</span>
           </div>
           <span className="font-bold text-[#2E4039]">{date}</span>
         </div>
-        <div className="flex flex-col mt-6 gap-2 font-medium text-[#939E95]">
+        <div className="flex flex-col mt-6 gap-2 font-medium text-[#939E95] [overflow-wrap:anywhere]">
           <p>ra: <span className="font-bold text-[#2E4039]">{ra}</span></p>
           <p>curso: <span className="font-bold text-[#2E4039]">{course}</span></p>
           <p>disciplina: <span className="font-bold text-[#2E4039]">{discipline}</span></p>

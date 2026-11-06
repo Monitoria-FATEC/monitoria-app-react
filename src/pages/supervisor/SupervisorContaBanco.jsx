@@ -44,13 +44,13 @@ function ContaCard({ item, onAprovar, onDevolver, desabilitado }) {
     const status = item.statusContaAgencia;
 
     return (
-        <article className="p-4 border border-gray-200 hover:border-gray-400 rounded-xl transition-all">
-            <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gray-300" />
-                <span className="font-bold text-[#2E4039]">{item.nome}</span>
+        <article className="min-w-0 p-4 border border-gray-200 hover:border-gray-400 rounded-xl transition-all">
+            <div className="flex min-w-0 items-center gap-2">
+                <div className="h-8 w-8 shrink-0 rounded-full bg-gray-300" />
+                <span className="min-w-0 break-words font-bold text-[#2E4039]">{item.nome}</span>
             </div>
 
-            <div className="flex flex-col mt-6 gap-2 font-medium text-[#939E95]">
+            <div className="flex flex-col mt-6 gap-2 font-medium text-[#939E95] [overflow-wrap:anywhere]">
                 <Linha rotulo="ra" valor={item.ra} />
                 <Linha rotulo="curso" valor={item.curso} />
                 <Linha rotulo="e-mail" valor={item.email} />
@@ -150,7 +150,7 @@ export default function SupervisorContaBanco() {
 
     return (
         <div>
-            <div className="w-full flex items-center gap-4 border-b border-gray-200 px-6">
+            <div className="w-full flex flex-wrap items-center gap-x-4 border-b border-gray-200 px-6">
                 {abas.map((tab) => (
                     <button
                         key={tab.id}
@@ -174,9 +174,9 @@ export default function SupervisorContaBanco() {
                 </p>
             )}
 
-            <div className="grid grid-cols-3 gap-4 p-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] gap-4 p-6">
                 {carregando ? (
-                    <div className="col-span-3 text-center text-gray-500">
+                    <div className="col-span-full text-center text-gray-500">
                         Carregando contas...
                     </div>
                 ) : exibidos.length > 0 ? (
@@ -190,7 +190,7 @@ export default function SupervisorContaBanco() {
                         />
                     ))
                 ) : (
-                    <div className="col-span-3 text-center text-gray-500">
+                    <div className="col-span-full text-center text-gray-500">
                         {abaAtual.vazio}
                     </div>
                 )}

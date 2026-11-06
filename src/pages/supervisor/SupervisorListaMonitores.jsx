@@ -3,6 +3,7 @@ import SearchBar from "../../components/supervisor/Searchbar";
 import Button from "../../components/supervisor/SupervisorButton";
 import MonitorCard from "../../components/supervisor/MonitorCard";
 import MonitorCardModal from "../../components/supervisor/MonitorCardModal";
+import MonitorDetalhesModal from "../../components/supervisor/MonitorDetalhesModal";
 import ExcluirMonitorModal from "../../components/supervisor/ExcluirMonitorModal";
 import NovoMonitorModal from "../../components/supervisor/NovoMonitorModal";
 import NovaSenhaModal from "../../components/supervisor/NovaSenhaModal";
@@ -40,6 +41,7 @@ export default function SupervisorListaMonitores() {
   const [aviso, setAviso] = useState(null);
 
   const [monitorSelecionado, setMonitorSelecionado] = useState(null);
+  const [monitorDetalhes, setMonitorDetalhes] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [idParaDesativar, setIdParaDesativar] = useState(null);
   const [monitorParaExcluir, setMonitorParaExcluir] = useState(null);
@@ -215,7 +217,7 @@ export default function SupervisorListaMonitores() {
       )}
 
       <div className="flex flex-wrap items-center gap-3 border-b border-gray-200 py-2">
-        <div className="min-w-[200px] flex-1">
+        <div className="min-w-0 flex-1 basis-48">
           <SearchBar />
         </div>
         <Button onClick={() => setNovoAberto(true)} variant="aprovar">
@@ -233,20 +235,28 @@ export default function SupervisorListaMonitores() {
         </p>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 py-6">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-4 py-6">
         {monitores.map((monitor) => (
           <MonitorCard
             key={monitor._id}
             form={monitor}
             onClick={() => setMonitorSelecionado(monitor)}
+            onDetalhes={() => setMonitorDetalhes(monitor)}
             onAlternarAtivo={() => handleAlternarAtivo(monitor)}
             onNovaSenha={() => setMonitorNovaSenha(monitor)}
             onExcluir={() => setMonitorParaExcluir(monitor)}
-            // Passando como callback para não executar direto na renderização
-            onDelete={() => handleSolicitarExclusao(monitor._id)}
           />
         ))}
       </div>
+
+      <MonitorDetalhesModal
+        monitor={monitorDetalhes}
+        onClose={() => setMonitorDetalhes(null)}
+        onEditar={(monitor) => {
+          setMonitorDetalhes(null);
+          setMonitorSelecionado(monitor);
+        }}
+      />
 
       <MonitorCardModal
         monitor={monitorSelecionado}
@@ -281,18 +291,6 @@ export default function SupervisorListaMonitores() {
         monitor={monitorNovaSenha}
         onFechar={() => setMonitorNovaSenha(null)}
       />
-
-      {modalOpen && (
-        <ConformationModal 
-          titulo="Excluir Monitor" 
-          descricao="Tem certeza que deseja excluir este monitor?" 
-          onCancel={() => {
-            setModalOpen(false);
-            setIdParaExcluir(null);
-          }} 
-          onConfirm={handleConfirmarExclusao}
-        />
-      )}
     </div>
   );
 }

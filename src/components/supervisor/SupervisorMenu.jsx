@@ -7,7 +7,7 @@ export default function SupervisorMenu() {
 
     return(
 
-    <aside className="flex flex-col w-64 bg-[#E9F0E5] h-screen sticky top-0 px-6 py-8 shrink-0">
+    <aside className="flex h-screen w-48 shrink-0 flex-col overflow-y-auto bg-[#E9F0E5] px-4 py-8 sticky top-0 lg:w-64 lg:px-6">
         <NavLink to="/" className="inline-flex items-center gap-3 text-[#243d38] no-underline">
           <img className="h-14 w-14 object-contain" src={logo} alt="Logo da Monitoria" />
           <span className="flex flex-col leading-tight">

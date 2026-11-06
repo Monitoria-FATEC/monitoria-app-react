@@ -74,9 +74,7 @@ export default function Home() {
       return
     }
 
-    document
-      .getElementById('encontrar')
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    navigate('/monitorias')
   }
 
   return (
