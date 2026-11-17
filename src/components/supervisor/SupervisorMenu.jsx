@@ -1,11 +1,20 @@
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import { supervisorRoutes } from "../../routes/supervisorRoutes";
-import BotaoSair from "../auth/BotaoSair";
+import { limparSessao } from '../../services/authStorage'
 import logo from '../../assets/img/logo/logo.png'
+import ConformationModal from "../ConfirmationModal";
+import BotaoSair from "../auth/BotaoSair";
 
-// No celular é uma gaveta aberta pelo botão do cabeçalho; do md em diante fica sempre visível.
 export default function SupervisorMenu({ id, aberto, onFechar, botaoFecharRef }) {
+    const [modalOpen, setModalOpen] = useState(false)
+    const navigate = useNavigate();
 
+    function handleLogout() {
+      limparSessao()
+      navigate('/entrar', { replace: true })
+    }
+    
     return(
     <>
       <div
@@ -48,7 +57,7 @@ export default function SupervisorMenu({ id, aberto, onFechar, botaoFecharRef })
                 end={r.index}
                 onClick={onFechar}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 p-2 rounded-lg transition-all ${isActive ? 'font-bold bg-white shadow-md text-[#2E4D42]' : 'bg-none text-[#7E8B81]'}`
+                  `flex items-center gap-2 p-2 rounded-lg transition-all hover:bg-white/60 ${isActive ? 'font-bold bg-white shadow-md text-[#2E4D42]' : 'bg-none text-[#7E8B81]'}`
                 }
               >
                 {r.icon}
@@ -59,9 +68,20 @@ export default function SupervisorMenu({ id, aberto, onFechar, botaoFecharRef })
         </ul>
 
         <div className="mt-auto border-t border-[#d5e2d2] pt-5">
-          <BotaoSair />
+          <BotaoSair onClick={() => setModalOpen(true)}/>
         </div>
+        
       </aside>
+      <ConformationModal 
+          open={modalOpen}
+          titulo="Sair da conta"
+          descricao="Deseja mesmo sair da conta?"
+          className="z-40"
+          onCancel={() => {
+            setModalOpen(false)
+          }}
+          onConfirm={handleLogout}
+        />
     </>
     )
 }
