@@ -7,16 +7,18 @@ import {
   salvarPerfilMonitor,
 } from '../../api/monitorApi'
 import { lerSessao } from '../../services/authStorage'
-import { metaDasAbas } from '../../components/monitor/abasMonitor'
+import { abasMonitor, metaDasAbas } from '../../components/monitor/abasMonitor'
 import ContaAgenciaForm from '../../components/monitor/ContaAgenciaForm'
-import MonitorHeader from '../../components/monitor/MonitorHeader'
 import FichaAtendimentos from '../../components/monitor/FichaAtendimentos'
 import MonitorHorarios from '../../components/monitor/MonitorHorarios'
 import MonitorInicio from '../../components/monitor/MonitorInicio'
 import MonitorOverview from '../../components/monitor/MonitorOverview'
-import MonitorSidebar from '../../components/monitor/MonitorSidebar'
 import PerfilMonitorForm from '../../components/monitor/PerfilMonitorForm'
 import TermoForm from '../../components/monitor/TermoForm'
+import SidebarMenu, { BotaoAbrirMenu } from '../../components/SidebarMenu'
+import PainelHeader from '../../components/PainelHeader'
+import StatusBadge from '../../components/monitor/StatusBadge'
+import useMenuLateral from '../../hooks/useMenuLateral'
 
 const dashboardInicial = {
   nome: '',
@@ -25,6 +27,8 @@ const dashboardInicial = {
   statusContaAgencia: 'AGUARDANDO',
   perfilAtivo: true,
 }
+
+const MENU_ID = 'menu-monitor'
 
 const contaInicial = { numeroConta: '', agencia: '' }
 const perfilInicial = {
@@ -63,6 +67,7 @@ export default function MonitorDashboard() {
   const [carregando, setCarregando] = useState(true)
   const [mensagem, setMensagem] = useState('')
   const [erro, setErro] = useState('')
+  const menu = useMenuLateral()
 
   async function carregarDashboard() {
     try {
@@ -102,6 +107,14 @@ export default function MonitorDashboard() {
   const perfilLiberado = dashboard.statusContaAgencia === 'APROVADO'
   const statusGeral = !dashboard.perfilAtivo ? 'INATIVO' : perfilLiberado ? 'APROVADO' : 'AGUARDANDO'
   const meta = metaDasAbas[aba] ?? metaDasAbas.inicio
+
+  // enquanto edita o termo, o item "Visão geral" continua destacado
+  const abaDoMenu = aba === 'termo' ? 'visao-geral' : aba
+  const itensDoMenu = abasMonitor.map((item) => ({
+    ...item,
+    ativo: abaDoMenu === item.id,
+    onClick: () => trocarAba(item.id),
+  }))
 
   // Devolve true quando salvou e false quando deu erro.
   async function executarAcao(acao, sucesso) {
@@ -153,14 +166,30 @@ export default function MonitorDashboard() {
   if (carregando) return <div className="flex min-h-screen items-center justify-center bg-[#f7f7f2] text-[#315c50]">Carregando seu dashboard...</div>
 
   return (
-    <div className="flex min-h-screen w-full flex-col text-[#243d38] lg:flex-row">
-      <MonitorSidebar aba={aba} onChange={trocarAba} nome={nomeMonitor} email={emailMonitor} />
+    <div className="flex min-h-screen w-full text-[#243d38]">
+      <SidebarMenu
+        id={MENU_ID}
+        label="Menu do monitor"
+        itens={itensDoMenu}
+        aberto={menu.aberto}
+        onFechar={menu.fechar}
+        botaoFecharRef={menu.botaoFecharRef}
+        usuario={{ nome: nomeMonitor, email: emailMonitor }}
+      />
 
-      <div className="flex flex-1 flex-col bg-white">
-        <MonitorHeader titulo={meta.titulo} nome={nomeMonitor} status={statusGeral} />
+      {/* inert: com a gaveta aberta, o teclado não alcança a página atrás dela */}
+      <div inert={menu.aberto} className="flex min-w-0 flex-1 flex-col bg-white">
+        <PainelHeader
+          titulo={meta.titulo}
+          botaoMenu={
+            <BotaoAbrirMenu aberto={menu.aberto} onAbrir={menu.abrir} botaoRef={menu.botaoAbrirRef} controla={MENU_ID} />
+          }
+        >
+          <StatusBadge status={statusGeral} />
+        </PainelHeader>
 
-        <div className="w-full flex-1 bg-[#E9F0E5] pb-2 pr-2">
-          <main className="h-full rounded-2xl border border-gray-200 bg-white shadow-md">
+        <div className="w-full flex-1 bg-[#E9F0E5] md:pb-2 md:pr-2">
+          <main className="h-full min-w-0 rounded-t-2xl border border-gray-200 bg-white shadow-md md:rounded-2xl">
             <div className="p-6">
               <p className="mb-4 uppercase text-[#939E95]">{hoje}</p>
               <h2 className="mb-2 text-xl font-medium">{meta.subtitulo}</h2>
