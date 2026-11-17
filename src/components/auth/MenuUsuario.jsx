@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
-import { lerSessaoValida, limparSessao } from '../../services/authStorage'
+import { lerSessaoValida } from '../../services/authStorage'
+import ModalSair from './ModalSair'
 
 // Rótulo e cor da bolinha para cada perfil.
 const PERFIS = {
@@ -14,10 +15,10 @@ const PERFIS = {
 const PERFIL_PADRAO = { rotulo: 'Usuário', cor: 'bg-[#68766e]' }
 
 // Bolinha com a inicial do nome. Ao clicar, abre o menu com os dados da conta,
-// o atalho para a página inicial e o botão Sair.
+// o atalho para a página inicial e o botão Sair (que pede confirmação antes).
 export default function MenuUsuario() {
-  const navigate = useNavigate()
   const [aberto, setAberto] = useState(false)
+  const [confirmarSaida, setConfirmarSaida] = useState(false)
   const raiz = useRef(null)
 
   const usuario = lerSessaoValida()?.usuario
@@ -49,12 +50,8 @@ export default function MenuUsuario() {
     }
   }, [aberto])
 
-  function sair() {
-    limparSessao()
-    navigate('/entrar', { replace: true })
-  }
-
   return (
+    <>
     <div className="relative" ref={raiz}>
       <button
         type="button"
@@ -105,7 +102,10 @@ export default function MenuUsuario() {
           <button
             type="button"
             role="menuitem"
-            onClick={sair}
+            onClick={() => {
+              setAberto(false)
+              setConfirmarSaida(true)
+            }}
             className="mt-2 w-full cursor-pointer rounded-lg border border-[#e9c9c5] bg-white px-3 py-2 text-left text-sm font-semibold text-[#a34d46] transition hover:bg-[#fce8e5]"
           >
             Sair da conta
@@ -113,5 +113,8 @@ export default function MenuUsuario() {
         </div>
       )}
     </div>
+
+    <ModalSair aberto={confirmarSaida} onCancelar={() => setConfirmarSaida(false)} />
+    </>
   )
 }
