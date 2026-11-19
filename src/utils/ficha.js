@@ -1,4 +1,4 @@
-// Funções de apoio da ficha de atendimentos do monitor.
+// Funções de apoio do registro de atendimentos do monitor.
 
 // Data de hoje no formato AAAA-MM-DD, no fuso do navegador.
 export function hojeEmIso() {
@@ -36,10 +36,14 @@ export const LIMITE_ATIVIDADE = 500
 
 
 // Devolve uma mensagem por campo inválido (objeto vazio = tudo certo).
-export function validarRegistro({ aluno, atividade, data, inicio, termino }) {
+export function validarRegistro({ aluno, raAluno, atividade, data, inicio, termino }) {
   const erros = {}
 
   if (aluno.trim().length < 3) erros.aluno = 'Informe o nome do aluno atendido.'
+
+  // RA do aluno é opcional: vazio ou 13 números
+  const ra = String(raAluno ?? '').trim()
+  if (ra && !/^\d{13}$/.test(ra)) erros.raAluno = 'O RA deve ter 13 números (ou deixe em branco).'
 
   if (atividade.trim().length < 10) erros.atividade = 'Descreva a atividade realizada (mínimo de 10 caracteres).'
   else if (atividade.trim().length > LIMITE_ATIVIDADE) erros.atividade = `Use no máximo ${LIMITE_ATIVIDADE} caracteres.`
@@ -52,4 +56,38 @@ export function validarRegistro({ aluno, atividade, data, inicio, termino }) {
   else if (inicio && termino <= inicio) erros.termino = 'O término precisa ser depois do início.'
 
   return erros
+}
+
+
+// ---------- períodos (mês de referência e vigência) ----------
+
+function doisDigitos(numero) {
+  return String(numero).padStart(2, '0')
+}
+
+// "2026-11" -> { inicio: "2026-11-01", fim: "2026-11-30" }
+export function intervaloDoMes(anoMes) {
+  const [ano, mes] = String(anoMes ?? '').split('-').map(Number)
+  if (!ano || !mes) return null
+
+  const ultimoDia = new Date(ano, mes, 0).getDate()
+  return { inicio: `${ano}-${doisDigitos(mes)}-01`, fim: `${ano}-${doisDigitos(mes)}-${doisDigitos(ultimoDia)}` }
+}
+
+// Mês atual no formato AAAA-MM.
+export function mesAtualEmIso() {
+  return hojeEmIso().slice(0, 7)
+}
+
+// Registros com data dentro do intervalo (inclusive). Sem limite = não filtra por aquele lado.
+export function registrosNoIntervalo(registros, inicio, fim) {
+  return registros.filter((registro) => (!inicio || registro.data >= inicio) && (!fim || registro.data <= fim))
+}
+
+// "2026-11-01", "2026-11-30" -> "01/11/2026 a 30/11/2026"
+export function formatarIntervaloBr(inicio, fim) {
+  const de = formatarDataBr(inicio)
+  const ate = formatarDataBr(fim)
+  if (de && ate) return `${de} a ${ate}`
+  return de || ate || ''
 }

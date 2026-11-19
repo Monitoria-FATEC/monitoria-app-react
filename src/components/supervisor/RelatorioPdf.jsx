@@ -1,6 +1,6 @@
 import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 
-import { COLUNAS } from '../../utils/relatorioInscricoes'
+import { COLUNAS, contar } from '../../utils/relatorioInscricoes'
 
 // Largura de cada coluna, em % (soma 100).
 const LARGURAS = {
@@ -30,6 +30,16 @@ const estilos = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: '#d5e2d2',
   },
+  total: {
+    marginTop: 8,
+    padding: 6,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#E9F0E5',
+    borderTopWidth: 1,
+    borderTopColor: '#2F5146',
+    fontFamily: 'Helvetica-Bold',
+  },
   celula: { padding: 4 },
   celulaCabecalho: { padding: 4, fontFamily: 'Helvetica-Bold' },
   rodape: {
@@ -46,6 +56,8 @@ const estilos = StyleSheet.create({
 
 // Relatório em A4 paisagem, com o cabeçalho repetido a cada página.
 export default function RelatorioPdf({ linhas, titulo, geradoEm }) {
+  const contagem = contar(linhas)
+
   return (
     <Document title={`Relatório de monitoria - ${titulo}`} author="Monitoria FATEC">
       <Page size="A4" orientation="landscape" style={estilos.pagina}>
@@ -80,6 +92,13 @@ export default function RelatorioPdf({ linhas, titulo, geradoEm }) {
             </View>
           ))
         )}
+
+        <View style={estilos.total} wrap={false}>
+          <Text>Total de inscrições: {linhas.length}</Text>
+          <Text>
+            Entregues: {contagem.entregues} · Aguardando: {contagem.aguardando} · Devolvidos: {contagem.devolvidos} · Atrasados: {contagem.atrasados}
+          </Text>
+        </View>
 
         <View style={estilos.rodape} fixed>
           <Text>Sistema de Monitoria e Frequência Acadêmica</Text>

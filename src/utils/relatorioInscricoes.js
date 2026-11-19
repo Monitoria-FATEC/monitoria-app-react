@@ -124,29 +124,131 @@ export const COLUNAS = [
   { chave: 'atualizadoEm', titulo: 'Última atualização' },
 ]
 
-// A biblioteca do Excel é pesada, então só é carregada quando o supervisor clica em exportar.
-export async function exportarExcel(linhas, grupo) {
-  const XLSX = await import('xlsx')
+// Colunas do Excel: as mesmas do PDF, mais o atraso e o motivo da devolução. Largura em caracteres.
+const COLUNAS_EXCEL = [
+  ...COLUNAS.map((coluna) => ({ ...coluna, largura: 0 })),
+  { chave: 'atraso', titulo: 'Dias de atraso', largura: 0 },
+  { chave: 'justificativa', titulo: 'Motivo da devolução', largura: 0 },
+]
+const LARGURAS_EXCEL = [30, 16, 36, 26, 24, 14, 18, 20, 14, 44]
 
-  const dados = linhas.map((linha) => {
-    const registro = {}
-    COLUNAS.forEach(({ chave, titulo }) => {
-      registro[titulo] = linha[chave]
-    })
-    registro['Dias de atraso'] = linha.atraso > 0 ? linha.atraso : ''
-    registro['Motivo da devolução'] = linha.justificativa
-    return registro
+const VERDE = 'FF315C50'
+const VERDE_CLARO = 'FFE9F0E5'
+const BORDA = 'FFD5E2D2'
+const TEXTO = 'FF2E4039'
+
+function bordaFina(cor = BORDA) {
+  const lado = { style: 'thin', color: { argb: cor } }
+  return { top: lado, left: lado, bottom: lado, right: lado }
+}
+
+// Monta a planilha com o mesmo visual do PDF: título, resumo, tabela com cabeçalho,
+// linhas zebradas e o total no fim. Recebe o ExcelJS para poder ser testada sem o navegador.
+export function montarPlanilhaRelatorio(ExcelJS, linhas, tituloDoGrupo, geradoEm) {
+  const livro = new ExcelJS.Workbook()
+  livro.creator = 'Sistema de Monitoria e Frequência Acadêmica'
+  const aba = livro.addWorksheet('Relatório', {
+    pageSetup: { orientation: 'landscape', paperSize: 9, fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
+    views: [{ showGridLines: false }],
   })
 
-  const planilha = XLSX.utils.json_to_sheet(dados)
-  planilha['!cols'] = [
-    { wch: 32 }, { wch: 16 }, { wch: 38 }, { wch: 28 }, { wch: 24 },
-    { wch: 14 }, { wch: 18 }, { wch: 20 }, { wch: 14 }, { wch: 40 },
-  ]
+  const ultima = COLUNAS_EXCEL.length
+  LARGURAS_EXCEL.forEach((largura, indice) => {
+    aba.getColumn(indice + 1).width = largura
+  })
 
-  const livro = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(livro, planilha, 'Relatório')
-  XLSX.writeFile(livro, nomeDoArquivo(grupo, 'xlsx'))
+  // título
+  aba.mergeCells(1, 1, 1, ultima)
+  const titulo = aba.getCell(1, 1)
+  titulo.value = `Relatório de monitoria — ${tituloDoGrupo}`
+  titulo.font = { name: 'Calibri', size: 16, bold: true, color: { argb: 'FFFFFFFF' } }
+  titulo.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: VERDE } }
+  titulo.alignment = { horizontal: 'center', vertical: 'middle' }
+  aba.getRow(1).height = 30
+
+  // subtítulo
+  aba.mergeCells(2, 1, 2, ultima)
+  const subtitulo = aba.getCell(2, 1)
+  subtitulo.value = `Fatec Zona Leste · gerado em ${geradoEm} · ${linhas.length} ${linhas.length === 1 ? 'registro' : 'registros'}`
+  subtitulo.font = { name: 'Calibri', size: 10, italic: true, color: { argb: 'FF68766E' } }
+  subtitulo.alignment = { horizontal: 'center', vertical: 'middle' }
+  aba.getRow(2).height = 20
+
+  // cabeçalho da tabela
+  const linhaCabecalho = 4
+  const cabecalho = aba.getRow(linhaCabecalho)
+  COLUNAS_EXCEL.forEach((coluna, indice) => {
+    const celula = cabecalho.getCell(indice + 1)
+    celula.value = coluna.titulo
+    celula.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } }
+    celula.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: VERDE } }
+    celula.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true }
+    celula.border = bordaFina(VERDE)
+  })
+  cabecalho.height = 24
+
+  // linhas
+  linhas.forEach((linha, indice) => {
+    const excel = aba.getRow(linhaCabecalho + 1 + indice)
+    COLUNAS_EXCEL.forEach((coluna, posicao) => {
+      const celula = excel.getCell(posicao + 1)
+      const valor = coluna.chave === 'atraso' ? (linha.atraso > 0 ? linha.atraso : '') : linha[coluna.chave]
+      celula.value = valor
+      celula.font = { name: 'Calibri', size: 10, color: { argb: TEXTO }, bold: coluna.chave === 'nome' }
+      celula.border = bordaFina()
+      celula.alignment = {
+        vertical: 'middle',
+        wrapText: true,
+        horizontal: ['ra', 'enviadoEm', 'prazo', 'atualizadoEm', 'atraso'].includes(coluna.chave) ? 'center' : 'left',
+      }
+      if (indice % 2 === 1) {
+        celula.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF6F9F4' } }
+      }
+    })
+  })
+
+  // total no fim (acompanha o filtro escolhido)
+  const contagem = contar(linhas)
+  const linhaTotal = linhaCabecalho + linhas.length + 1
+  aba.mergeCells(linhaTotal, 1, linhaTotal, 4)
+  aba.getCell(linhaTotal, 1).value = `Total de inscrições: ${linhas.length}`
+  aba.mergeCells(linhaTotal, 5, linhaTotal, ultima)
+  aba.getCell(linhaTotal, 5).value =
+    `Entregues: ${contagem.entregues} · Aguardando: ${contagem.aguardando} · Devolvidos: ${contagem.devolvidos} · Atrasados: ${contagem.atrasados}`
+  for (let coluna = 1; coluna <= ultima; coluna += 1) {
+    const celula = aba.getCell(linhaTotal, coluna)
+    celula.font = { name: 'Calibri', size: 11, bold: true, color: { argb: TEXTO } }
+    celula.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: VERDE_CLARO } }
+    celula.alignment = { vertical: 'middle', horizontal: 'left' }
+    celula.border = { ...bordaFina(), top: { style: 'medium', color: { argb: VERDE } } }
+  }
+  aba.getRow(linhaTotal).height = 24
+
+  // cabeçalho fixo ao rolar, filtro nas colunas e cabeçalho repetido ao imprimir
+  aba.views = [{ state: 'frozen', ySplit: linhaCabecalho, showGridLines: false }]
+  aba.autoFilter = { from: { row: linhaCabecalho, column: 1 }, to: { row: linhaCabecalho, column: ultima } }
+  aba.pageSetup.printTitlesRow = `${linhaCabecalho}:${linhaCabecalho}`
+
+  return livro
+}
+
+// A biblioteca do Excel é pesada, então só é carregada quando o supervisor clica em exportar.
+export async function exportarExcel(linhas, grupo, tituloDoGrupo) {
+  const ExcelJS = (await import('exceljs')).default
+  const livro = montarPlanilhaRelatorio(ExcelJS, linhas, tituloDoGrupo ?? 'Todas', formatarData(hojeIso()))
+  const buffer = await livro.xlsx.writeBuffer()
+
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = nomeDoArquivo(grupo, 'xlsx')
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
 }
 
 // O PDF usa o mesmo @react-pdf/renderer do termo e também é carregado só na hora.

@@ -260,7 +260,7 @@ export default function VerificarEmail() {
                     <strong className="text-[#243d38]">
                       {mascararEmail(email)}
                     </strong>
-                    . Ele é válido por alguns minutos.
+                    . Ele é válido por 10 minutos.
                   </>
                 )}
               </p>

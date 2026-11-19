@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import Button from "./SupervisorButton";
 
+const classeCampo =
+  "rounded-lg border border-gray-200 bg-white px-3 py-2 text-[#2E4039] outline-none focus:border-[#769c8d] focus:ring-4 focus:ring-[#769c8d]/15";
+
+function Campo({ rotulo, children }) {
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-xs font-bold uppercase text-gray-500">{rotulo}</span>
+      {children}
+    </label>
+  );
+}
+
 export default function MonitorCardModal({ monitor, onClose, onSave }) {
   const aberto = Boolean(monitor);
   const dataCriacao = monitor?.dataCriacao
@@ -10,9 +22,16 @@ export default function MonitorCardModal({ monitor, onClose, onSave }) {
     nome: monitor?.nome ?? "",
     ra: monitor?.ra ?? "",
     email: monitor?.email ?? "",
+    curso: monitor?.curso ?? "",
     agencia: monitor?.agencia ?? "",
     conta: monitor?.conta ?? "",
     ativo: monitor?.ativo ?? false,
+    telefone: monitor?.telefone ?? "",
+    linkWhatsapp: monitor?.linkWhatsapp ?? "",
+    linkTeams: monitor?.linkTeams ?? "",
+    compartilharContato: monitor?.compartilharContato ?? false,
+    vigenciaInicio: monitor?.vigenciaInicio ?? "",
+    vigenciaFim: monitor?.vigenciaFim ?? "",
   }));
 
   useEffect(() => {
@@ -20,9 +39,16 @@ export default function MonitorCardModal({ monitor, onClose, onSave }) {
       nome: monitor?.nome ?? "",
       ra: monitor?.ra ?? "",
       email: monitor?.email ?? "",
+      curso: monitor?.curso ?? "",
       agencia: monitor?.agencia ?? "",
       conta: monitor?.conta ?? "",
       ativo: monitor?.ativo ?? false,
+      telefone: monitor?.telefone ?? "",
+      linkWhatsapp: monitor?.linkWhatsapp ?? "",
+      linkTeams: monitor?.linkTeams ?? "",
+      compartilharContato: monitor?.compartilharContato ?? false,
+      vigenciaInicio: monitor?.vigenciaInicio ?? "",
+      vigenciaFim: monitor?.vigenciaFim ?? "",
     });
   }, [monitor]);
 
@@ -125,6 +151,16 @@ export default function MonitorCardModal({ monitor, onClose, onSave }) {
                         required
                       />
                     </label>
+                    <Campo rotulo="Curso">
+                      <input
+                        className={classeCampo}
+                        type="text"
+                        name="curso"
+                        value={formulario.curso}
+                        onChange={handleChange}
+                        required
+                      />
+                    </Campo>
                     <label className="flex flex-col gap-1">
                       <span className="text-xs font-bold uppercase text-gray-500">
                         Agência
@@ -163,6 +199,38 @@ export default function MonitorCardModal({ monitor, onClose, onSave }) {
                       Perfil: {monitor.role || "—"} · Data de criação:{" "}
                       {dataCriacao}
                     </p>
+                  </div>
+                </div>
+
+                <div className="mb-4 rounded-2xl border border-gray-200 bg-white p-6">
+                  <p className="mb-1 text-lg font-bold uppercase text-[#939E95]">
+                    perfil de atendimento
+                  </p>
+                  <p className="mb-4 text-sm text-[#68766e]">
+                    O monitor vê um aviso no sistema dizendo quais campos você alterou.
+                  </p>
+                  <div className="grid gap-4">
+                    <Campo rotulo="Telefone">
+                      <input className={classeCampo} type="tel" name="telefone" placeholder="(11) 98765-4321" value={formulario.telefone} onChange={handleChange} />
+                    </Campo>
+                    <Campo rotulo="Link do WhatsApp">
+                      <input className={classeCampo} type="url" name="linkWhatsapp" placeholder="https://wa.me/5511987654321" value={formulario.linkWhatsapp} onChange={handleChange} />
+                    </Campo>
+                    <Campo rotulo="Link do Teams">
+                      <input className={classeCampo} type="url" name="linkTeams" placeholder="https://teams.microsoft.com/..." value={formulario.linkTeams} onChange={handleChange} />
+                    </Campo>
+                    <div className="grid grid-cols-2 gap-3 max-[420px]:grid-cols-1">
+                      <Campo rotulo="Vigência: início">
+                        <input className={classeCampo} type="date" name="vigenciaInicio" value={formulario.vigenciaInicio} onChange={handleChange} />
+                      </Campo>
+                      <Campo rotulo="Vigência: fim">
+                        <input className={classeCampo} type="date" name="vigenciaFim" value={formulario.vigenciaFim} onChange={handleChange} />
+                      </Campo>
+                    </div>
+                    <label className="flex items-center gap-3 font-medium text-[#2E4039]">
+                      <input type="checkbox" name="compartilharContato" checked={formulario.compartilharContato} onChange={handleChange} className="h-4 w-4 accent-[#2F5146]" />
+                      Mostrar e-mail e contatos na página pública
+                    </label>
                   </div>
                 </div>
               </div>

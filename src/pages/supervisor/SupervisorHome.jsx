@@ -5,6 +5,16 @@ import { listarHorariosDosMonitores } from "../../api/horariosApi";
 import { listarInscricoes } from "../../api/inscricaoApi";
 import { listarMonitores } from "../../api/supervisor";
 import { contar, montarLinhas } from "../../utils/relatorioInscricoes";
+import GraficoBarras from "../../components/graficos/GraficoBarras";
+import GraficoRosca from "../../components/graficos/GraficoRosca";
+
+// Cores dos gráficos (mesma paleta do StatusBadge). O número sempre aparece escrito junto.
+const BARRA = {
+    pendente: "bg-[#d9ab36]",
+    andamento: "bg-[#939E95]",
+    concluido: "bg-[#5b9a6f]",
+    devolvido: "bg-[#c76b61]",
+};
 
 // Mesmas cores do StatusBadge. A cor só acompanha o rótulo, nunca aparece sozinha.
 const COR_ESTADO = {
@@ -100,7 +110,7 @@ function montarPendencias({ inscricoes, contas, relatorio }) {
     return itens.filter((item) => item.quantidade > 0);
 }
 
-function CartaoResumo({ titulo, para, valor, total, unidade, estados, carregando, className = "" }) {
+function CartaoResumo({ titulo, para, valor, total, unidade, estados, carregando, grafico, className = "" }) {
     const falhou = !carregando && valor === undefined;
 
     return (
@@ -142,6 +152,8 @@ function CartaoResumo({ titulo, para, valor, total, unidade, estados, carregando
                             </div>
                         ))}
                     </dl>
+
+                    {!carregando && grafico && <div className="mt-4 border-t border-gray-100 pt-4">{grafico}</div>}
                 </>
             )}
         </Link>
@@ -169,7 +181,10 @@ export default function SupervisorHome() {
                 return null;
             });
 
-            setDados({ inscricoes, contas, monitores, horarios });
+            // inscrição cujo monitor não existe mais não conta (o relatório também ignora)
+            const inscricoesValidas = inscricoes ? inscricoes.filter((inscricao) => inscricao.monitor) : inscricoes;
+
+            setDados({ inscricoes: inscricoesValidas, contas, monitores, horarios });
         });
 
         return () => {
@@ -211,6 +226,19 @@ export default function SupervisorHome() {
                     { rotulo: "Homologados", valor: inscricoes?.homologados, cor: "concluido" },
                     { rotulo: "Devolvidos", valor: inscricoes?.devolvidos, cor: "devolvido" },
                 ]}
+                grafico={
+                    inscricoes && (
+                        <GraficoBarras
+                            titulo="Termos por situação"
+                            itens={[
+                                { rotulo: "Aguardando", valor: inscricoes.aguardando, cor: BARRA.pendente },
+                                { rotulo: "Em assinatura", valor: inscricoes.assinatura, cor: BARRA.andamento },
+                                { rotulo: "Homologados", valor: inscricoes.homologados, cor: BARRA.concluido },
+                                { rotulo: "Devolvidos", valor: inscricoes.devolvidos, cor: BARRA.devolvido },
+                            ]}
+                        />
+                    )
+                }
             />
 
             <CartaoResumo
@@ -226,6 +254,18 @@ export default function SupervisorHome() {
                     { rotulo: "Aprovadas", valor: contas?.aprovadas, cor: "concluido" },
                     { rotulo: "Devolvidas", valor: contas?.devolvidas, cor: "devolvido" },
                 ]}
+                grafico={
+                    contas && (
+                        <GraficoBarras
+                            titulo="Contas por situação"
+                            itens={[
+                                { rotulo: "Aguardando", valor: contas.aguardando, cor: BARRA.pendente },
+                                { rotulo: "Aprovadas", valor: contas.aprovadas, cor: BARRA.concluido },
+                                { rotulo: "Devolvidas", valor: contas.devolvidas, cor: BARRA.devolvido },
+                            ]}
+                        />
+                    )
+                }
             />
 
             <CartaoResumo
@@ -237,6 +277,18 @@ export default function SupervisorHome() {
                 total={monitores?.total}
                 unidade="ativos"
                 estados={[{ rotulo: "Inativos", valor: monitores?.inativos }]}
+                grafico={
+                    monitores && (
+                        <GraficoRosca
+                            titulo="Ativos e inativos"
+                            rotuloTotal="monitores"
+                            fatias={[
+                                { rotulo: "Ativos", valor: monitores.ativos, cor: "#5b9a6f" },
+                                { rotulo: "Inativos", valor: monitores.inativos, cor: "#939E95" },
+                            ]}
+                        />
+                    )
+                }
             />
 
             <CartaoResumo

@@ -67,7 +67,7 @@ export default function SupervisorCard({
         <div className="flex items-center gap-2 mt-6 flex-wrap">
           <Button variant="reprovar" className={bloqueio} onClick={() => onDevolver(id)}>Devolver</Button>
           {enviado ? (
-            <Button variant="aprovar" className={bloqueio} onClick={() => onHomologar(id)}>Homologar</Button>
+            <Button variant="aprovar" className={bloqueio} onClick={() => onHomologar(id)}>Assinatura feita (homologar)</Button>
           ) : (
             <Button variant="aprovar" className={bloqueio} onClick={() => onEnviarAssinatura(id)}>Marcar PDF como enviado</Button>
           )}

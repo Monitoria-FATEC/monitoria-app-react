@@ -36,38 +36,23 @@ export default function PerfilMonitorForm({ liberado, perfil, onChange, onSubmit
     <section className="max-w-[760px] rounded-2xl border border-[#e2e6df] bg-white p-6 sm:p-8">
       <p className="mb-2 text-[11px] font-bold uppercase tracking-[.12em] text-[#769c8d]">INFORMAÇÕES DE ATENDIMENTO</p>
       <h2 className="mb-2 font-sans text-3xl font-normal">Meu perfil</h2>
-      <p className="mb-7 text-sm leading-relaxed text-[#68766e]">Informe como os alunos poderão encontrar você.</p>
+      <p className="mb-7 text-sm leading-relaxed text-[#68766e]">
+        Informe seus contatos. Os horários e o local de atendimento você cadastra na aba Horários.
+      </p>
 
       {!liberado ? (
         <div className="rounded-xl bg-[#fff6d8] p-4 text-sm text-[#856c31]">A edição do perfil será liberada somente após a aprovação da conta e agência.</div>
       ) : (
         <form ref={formRef} className="grid gap-5" onSubmit={enviar} noValidate>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <FormField
-              label="Telefone para contato"
-              type="tel"
-              inputMode="tel"
-              maxLength={15}
-              placeholder="(11) 98765-4321"
-              value={perfil.telefone}
-              erro={erros.telefone}
-              onChange={(event) => alterar('telefone', formatarTelefone(event.target.value))}
-            />
-            <FormField
-              label="Local de atendimento"
-              maxLength={100}
-              value={perfil.localAtendimento}
-              erro={erros.localAtendimento}
-              onChange={(event) => alterar('localAtendimento', event.target.value)}
-            />
-          </div>
           <FormField
-            label="Horários de atendimento"
-            maxLength={200}
-            value={perfil.horariosAtendimento}
-            erro={erros.horariosAtendimento}
-            onChange={(event) => alterar('horariosAtendimento', event.target.value)}
-            placeholder="Ex.: terça e quinta, das 14h às 17h"
+            label="Telefone para contato"
+            type="tel"
+            inputMode="tel"
+            maxLength={15}
+            placeholder="(11) 98765-4321"
+            value={perfil.telefone}
+            erro={erros.telefone}
+            onChange={(event) => alterar('telefone', formatarTelefone(event.target.value))}
           />
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField
@@ -85,6 +70,19 @@ export default function PerfilMonitorForm({ liberado, perfil, onChange, onSubmit
               onChange={(event) => alterar('linkTeams', event.target.value)}
             />
           </div>
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[#e2e6df] p-4">
+            <input
+              type="checkbox"
+              className="mt-1 h-5 w-5 shrink-0 cursor-pointer accent-[#315c50]"
+              checked={Boolean(perfil.compartilharContato)}
+              onChange={(event) => alterar('compartilharContato', event.target.checked)}
+            />
+            <span className="text-sm leading-relaxed text-[#39544c]">
+              <strong className="block">Mostrar meus contatos na página de monitorias</strong>
+              Se marcar, os alunos veem meu e-mail e os links do WhatsApp e do Teams. Se não marcar, a página mostra
+              apenas o local, o dia e o horário em que você atende.
+            </span>
+          </label>
           <fieldset className="grid gap-3 rounded-xl border border-[#e2e6df] p-4">
             <legend className="px-1 text-xs font-bold text-[#39544c]">Vigência da monitoria</legend>
             <p className="m-0 text-xs leading-relaxed text-[#68766e]">

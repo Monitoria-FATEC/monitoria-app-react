@@ -24,14 +24,24 @@ export async function gerarSenhaTemporariaMonitor(id) {
   return response.data;
 }
 
-// Edita nome, e-mail, curso, conta e agência. O RA não muda.
-export async function atualizarMonitor(id, { nome, email, curso, numeroConta, agencia }) {
+// Edita todos os dados do monitor (cadastro e perfil). O RA não muda.
+// Se algo mudar, o monitor recebe um aviso no sistema.
+export async function atualizarMonitor(
+  id,
+  { nome, email, curso, numeroConta, agencia, telefone, linkWhatsapp, linkTeams, compartilharContato, vigenciaInicio, vigenciaFim }
+) {
   const response = await axiosClient.put(`/monitores/${id}/gestao`, {
     nome,
     email,
     curso,
     numeroConta,
     agencia,
+    telefone,
+    linkWhatsapp,
+    linkTeams,
+    compartilharContato: Boolean(compartilharContato),
+    vigenciaInicio: vigenciaInicio || null,
+    vigenciaFim: vigenciaFim || null,
   });
   return response.data;
 }

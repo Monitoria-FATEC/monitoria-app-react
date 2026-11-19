@@ -87,7 +87,7 @@ export default function Navbar({ buttonBase }) {
 
             <span className="flex flex-col leading-tight">
               <strong className="text-lg font-semibold tracking-[-.3px] max-[380px]:text-base">
-                Nome do site
+                MonitoraFatec
               </strong>
 
               <small className="mt-1 text-[10px] tracking-[.5px] max-[380px]:text-[9px]">

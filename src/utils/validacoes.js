@@ -406,14 +406,6 @@ function validarVigencia(inicio, fim) {
 export function validarPerfil(perfil) {
   const erros = {
     telefone: validarTelefone(perfil.telefone),
-    localAtendimento:
-      String(perfil.localAtendimento ?? '').trim().length > 100
-        ? 'O local deve ter no máximo 100 caracteres.'
-        : '',
-    horariosAtendimento:
-      String(perfil.horariosAtendimento ?? '').trim().length > 200
-        ? 'Os horários devem ter no máximo 200 caracteres.'
-        : '',
     linkWhatsapp: validarLinkWhatsapp(perfil.linkWhatsapp),
     linkTeams: validarLinkTeams(perfil.linkTeams),
     ...validarVigencia(perfil.vigenciaInicio, perfil.vigenciaFim),

@@ -24,7 +24,7 @@ export default function Footer() {
 
             <span className="flex flex-col leading-tight">
               <strong className="text-lg font-semibold tracking-[-.3px]">
-                Nome do site
+                MonitoraFatec
               </strong>
 
               <small className="mt-1 text-[10px] tracking-[.5px]">

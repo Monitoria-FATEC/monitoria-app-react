@@ -3,11 +3,13 @@ import {
   atualizarTermoCompromisso,
   buscarDashboardMonitor,
   desativarPerfilMonitor,
+  marcarAvisoPerfilLido,
   salvarContaAgencia,
   salvarPerfilMonitor,
 } from '../../api/monitorApi'
 import { lerSessao } from '../../services/authStorage'
 import { abasMonitor, metaDasAbas } from '../../components/monitor/abasMonitor'
+import AvisoPerfilEditado from '../../components/monitor/AvisoPerfilEditado'
 import ContaAgenciaForm from '../../components/monitor/ContaAgenciaForm'
 import FichaAtendimentos from '../../components/monitor/FichaAtendimentos'
 import MonitorHorarios from '../../components/monitor/MonitorHorarios'
@@ -33,10 +35,9 @@ const MENU_ID = 'menu-monitor'
 const contaInicial = { numeroConta: '', agencia: '' }
 const perfilInicial = {
   telefone: '',
-  localAtendimento: '',
-  horariosAtendimento: '',
   linkWhatsapp: '',
   linkTeams: '',
+  compartilharContato: false,
   vigenciaInicio: '',
   vigenciaFim: '',
 }
@@ -67,6 +68,7 @@ export default function MonitorDashboard() {
   const [carregando, setCarregando] = useState(true)
   const [mensagem, setMensagem] = useState('')
   const [erro, setErro] = useState('')
+  const [lendoAviso, setLendoAviso] = useState(false)
   const menu = useMenuLateral()
 
   async function carregarDashboard() {
@@ -76,10 +78,9 @@ export default function MonitorDashboard() {
       setConta({ numeroConta: dados.numeroConta ?? '', agencia: dados.agencia ?? '' })
       setPerfil({
         telefone: dados.telefone ?? '',
-        localAtendimento: dados.localAtendimento ?? '',
-        horariosAtendimento: dados.horariosAtendimento ?? '',
         linkWhatsapp: dados.linkWhatsapp ?? '',
         linkTeams: dados.linkTeams ?? '',
+        compartilharContato: Boolean(dados.compartilharContato),
         // sem vigência própria, começa com o período do termo de compromisso
         vigenciaInicio: dados.vigenciaInicio ?? dados.periodoInicio ?? '',
         vigenciaFim: dados.vigenciaFim ?? dados.periodoFim ?? '',
@@ -158,6 +159,17 @@ export default function MonitorDashboard() {
     trocarAba('termo')
   }
 
+  async function entendiAviso() {
+    setLendoAviso(true)
+    try {
+      setDashboard(await marcarAvisoPerfilLido())
+    } catch {
+      setErro('Não foi possível fechar o aviso. Tente novamente.')
+    } finally {
+      setLendoAviso(false)
+    }
+  }
+
   function desativarPerfil() {
     const confirmou = window.confirm('Deseja desativar seu perfil? Ele não será excluído e poderá ser reativado pela supervisão.')
     if (confirmou) executarAcao(() => desativarPerfilMonitor(), 'Perfil desativado. Procure a supervisão caso queira reativá-lo.')
@@ -197,6 +209,7 @@ export default function MonitorDashboard() {
             </div>
 
             <div className="px-6 pb-6">
+              <AvisoPerfilEditado dashboard={dashboard} onEntendi={entendiAviso} lendo={lendoAviso} />
               {erro && <div className="mb-5 rounded-xl bg-[#fce8e5] px-4 py-3 text-sm text-[#a64e49]" role="alert">{erro}</div>}
               {mensagem && <div className="mb-5 rounded-xl bg-[#e4f4e5] px-4 py-3 text-sm text-[#39734f]" role="status">{mensagem}</div>}
 
@@ -258,10 +271,10 @@ export default function MonitorDashboard() {
 
               {aba === 'atendimentos' && (
                 perfilLiberado ? (
-                  <FichaAtendimentos nomeMonitor={nomeMonitor} />
+                  <FichaAtendimentos nomeMonitor={nomeMonitor} dadosMonitor={dashboard} />
                 ) : (
                   <div className="rounded-xl bg-[#f3f1ea] px-4 py-4 text-sm text-[#68766e]">
-                    A ficha de atendimentos fica disponível depois que a supervisão aprovar sua conta e agência.
+                    O registro de atendimentos fica disponível depois que a supervisão aprovar sua conta e agência.
                   </div>
                 )
               )}

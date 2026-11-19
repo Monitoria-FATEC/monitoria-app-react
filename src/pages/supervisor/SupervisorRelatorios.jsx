@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "../../components/supervisor/SupervisorButton";
+import GraficoBarras from "../../components/graficos/GraficoBarras";
 import { listarInscricoes } from "../../api/inscricaoApi";
 import {
     GRUPOS,
@@ -62,7 +63,7 @@ export default function SupervisorRelatorios() {
         setErro(null);
         try {
             if (tipo === "pdf") await exportarPdf(visiveis, filtro, tituloDoFiltro);
-            else await exportarExcel(visiveis, filtro);
+            else await exportarExcel(visiveis, filtro, tituloDoFiltro);
         } catch (exportError) {
             console.error(exportError);
             setErro("Não foi possível gerar o arquivo. Tente novamente.");
@@ -102,6 +103,25 @@ export default function SupervisorRelatorios() {
                     </button>
                 ))}
             </div>
+
+            <section aria-labelledby="grafico-relatorio" className="mt-6 rounded-xl border border-gray-200 bg-white p-5">
+                <h2 id="grafico-relatorio" className="mb-4 text-sm font-bold text-[#39544c]">
+                    Gráfico: inscrições por situação
+                </h2>
+                {carregando ? (
+                    <p className="text-sm text-[#68766e]" role="status">Carregando gráfico...</p>
+                ) : (
+                    <GraficoBarras
+                        itens={[
+                            { rotulo: "Entregues", valor: totais.entregues, cor: "bg-[#5b9a6f]" },
+                            { rotulo: "Aguardando", valor: totais.aguardando, cor: "bg-[#d9ab36]" },
+                            { rotulo: "Devolvidos", valor: totais.devolvidos, cor: "bg-[#e08a3c]" },
+                            { rotulo: "Atrasados", valor: totais.atrasados, cor: "bg-[#c76b61]" },
+                        ]}
+                    />
+                )}
+                <p className="mt-3 text-xs text-[#68766e]">Total de inscrições: {totais.todas}</p>
+            </section>
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtrar relatório">
@@ -178,6 +198,16 @@ export default function SupervisorRelatorios() {
                             ))
                         )}
                     </tbody>
+                    {!carregando && !semDados && (
+                        <tfoot className="border-t-2 border-[#2F5146] bg-[#E9F0E5] text-[#2E4039]">
+                            <tr>
+                                <th scope="row" colSpan={6} className="p-3 text-left font-bold">
+                                    Total de inscrições ({tituloDoFiltro})
+                                </th>
+                                <td className="p-3 font-bold" aria-live="polite">{visiveis.length}</td>
+                            </tr>
+                        </tfoot>
+                    )}
                 </table>
             </div>
 

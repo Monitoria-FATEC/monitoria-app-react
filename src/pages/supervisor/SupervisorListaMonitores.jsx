@@ -23,6 +23,12 @@ function paraCard(monitor) {
     role: "MONITOR",
     conta: monitor.numeroConta ?? "",
     agencia: monitor.agencia ?? "",
+    telefone: monitor.telefone ?? "",
+    linkWhatsapp: monitor.linkWhatsapp ?? "",
+    linkTeams: monitor.linkTeams ?? "",
+    compartilharContato: Boolean(monitor.compartilharContato),
+    vigenciaInicio: monitor.vigenciaInicio ?? "",
+    vigenciaFim: monitor.vigenciaFim ?? "",
     dataCriacao: monitor.dataCadastro,
   };
 }
@@ -159,6 +165,12 @@ export default function SupervisorListaMonitores() {
         curso: atualizado.curso,
         numeroConta: atualizado.conta,
         agencia: atualizado.agencia,
+        telefone: atualizado.telefone,
+        linkWhatsapp: atualizado.linkWhatsapp,
+        linkTeams: atualizado.linkTeams,
+        compartilharContato: atualizado.compartilharContato,
+        vigenciaInicio: atualizado.vigenciaInicio,
+        vigenciaFim: atualizado.vigenciaFim,
       });
 
       if (original && original.ativo !== atualizado.ativo) {
@@ -168,6 +180,7 @@ export default function SupervisorListaMonitores() {
       substituir(resposta);
       setMonitorSelecionado(null);
       setErro(null);
+      setAviso(`Alterações salvas. ${resposta.nome ?? "O monitor"} será avisado(a) da edição ao entrar no sistema.`);
     } catch (requestError) {
       console.error(requestError);
       setErro(mensagemDeErro(requestError, "Não foi possível salvar as alterações."));

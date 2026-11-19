@@ -39,7 +39,7 @@ function montarEtapas(d, contaLiberada, perfilLiberado) {
   else if (d.numeroConta && d.agencia) conta = { estado: 'atual', descricao: 'Enviada, em análise pela supervisão.' }
   else conta = { estado: 'atual', descricao: 'Envie o número da conta e a agência.' }
 
-  const perfilPreenchido = Boolean(d.telefone || d.localAtendimento || d.horariosAtendimento || d.linkWhatsapp || d.linkTeams)
+  const perfilPreenchido = Boolean(d.telefone || d.linkWhatsapp || d.linkTeams)
   let perfil
   if (!perfilLiberado) perfil = { estado: 'pendente', descricao: 'Liberado depois da aprovação da conta e agência.' }
   else if (perfilPreenchido) perfil = { estado: 'ok', descricao: 'Informações de atendimento preenchidas.' }

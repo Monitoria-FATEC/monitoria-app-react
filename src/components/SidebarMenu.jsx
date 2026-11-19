@@ -57,7 +57,7 @@ export default function SidebarMenu({ id, label, itens, aberto, onFechar, botaoF
           <NavLink to="/" className="inline-flex min-w-0 items-center gap-3 text-[#243d38] no-underline">
             <img className="h-14 w-14 object-contain" src={logo} alt="Logo da Monitoria" />
             <span className="flex flex-col leading-tight">
-              <strong className="text-lg font-semibold tracking-[-.3px]">Nome do site</strong>
+              <strong className="text-lg font-semibold tracking-[-.3px]">MonitoraFatec</strong>
               <small className="mt-1 text-[10px] tracking-[.5px]">MONITORIA ACADÊMICA</small>
             </span>
           </NavLink>

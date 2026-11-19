@@ -122,7 +122,21 @@ export default function HorariosPublicos() {
 
                           {contatoAbertoId === horario.id && (
                             <div id={`contato-${horario.id}`} className="mt-1 flex flex-wrap gap-2">
-                              {linkSeguro(horario.linkWhatsapp) && (
+                              {!horario.contatoCompartilhado && (
+                                <p className="m-0 text-sm text-[#68766e]">
+                                  O monitor optou por não compartilhar seus dados de contato. Você pode encontrá-lo
+                                  no {horario.local}, {dia.rotulo.toLowerCase()}, no horário {formatarIntervalo(horario)}.
+                                </p>
+                              )}
+                              {horario.contatoCompartilhado && horario.email && (
+                                <a
+                                  href={`mailto:${horario.email}`}
+                                  className="inline-flex min-h-11 items-center rounded-full bg-[#f3efdf] px-4 text-sm font-medium text-[#315c50] no-underline"
+                                >
+                                  Enviar e-mail
+                                </a>
+                              )}
+                              {horario.contatoCompartilhado && linkSeguro(horario.linkWhatsapp) && (
                                 <a
                                   href={horario.linkWhatsapp}
                                   target="_blank"
@@ -132,7 +146,7 @@ export default function HorariosPublicos() {
                                   Chamar no WhatsApp
                                 </a>
                               )}
-                              {linkSeguro(horario.linkTeams) && (
+                              {horario.contatoCompartilhado && linkSeguro(horario.linkTeams) && (
                                 <a
                                   href={horario.linkTeams}
                                   target="_blank"
@@ -142,7 +156,7 @@ export default function HorariosPublicos() {
                                   Abrir no Teams
                                 </a>
                               )}
-                              {!linkSeguro(horario.linkWhatsapp) && !linkSeguro(horario.linkTeams) && (
+                              {horario.contatoCompartilhado && !horario.email && !linkSeguro(horario.linkWhatsapp) && !linkSeguro(horario.linkTeams) && (
                                 <p className="m-0 text-sm text-[#68766e]">
                                   Este monitor não divulgou um canal de contato. Vá até o local no horário indicado.
                                 </p>

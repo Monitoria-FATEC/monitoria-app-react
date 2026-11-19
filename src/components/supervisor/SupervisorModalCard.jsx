@@ -89,7 +89,7 @@ export default function SupervisorModalCard({
                     <p className="text-[#68766e]">
                       1. Baixe o termo em PDF (botão abaixo) e envie à Gestão por e-mail.<br />
                       2. Clique em <span className="font-bold">Marcar PDF como enviado</span>.<br />
-                      3. Quando a Gestão devolver assinado, clique em <span className="font-bold">Homologar</span>
+                      3. Quando a Gestão devolver assinado, clique em <span className="font-bold">Assinatura feita (homologar)</span>
                       {" "}para liberar a conta e agência do monitor.
                     </p>
                     <p className={`mt-3 font-bold ${enviado ? "text-green-700" : "text-amber-700"}`}>
@@ -172,7 +172,7 @@ export default function SupervisorModalCard({
                         <>
                             <Button variant="reprovar" className={bloqueio} onClick={() => onDevolver(id)}>Devolver</Button>
                             {enviado ? (
-                                <Button variant="aprovar" className={bloqueio} onClick={() => onHomologar(id)}>Homologar</Button>
+                                <Button variant="aprovar" className={bloqueio} onClick={() => onHomologar(id)}>Assinatura feita (homologar)</Button>
                             ) : (
                                 <Button variant="aprovar" className={bloqueio} onClick={() => onEnviarAssinatura(id)}>Marcar PDF como enviado</Button>
                             )}

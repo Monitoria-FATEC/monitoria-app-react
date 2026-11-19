@@ -87,6 +87,12 @@ export async function salvarPerfilMonitor(dados) {
   return response.data
 }
 
+// O monitor leu o aviso de que a supervisão editou o perfil dele. Devolve o dashboard atualizado.
+export async function marcarAvisoPerfilLido() {
+  const response = await axiosClient.patch('/monitores/me/aviso-perfil/lido')
+  return response.data
+}
+
 export async function desativarPerfilMonitor() {
   await axiosClient.patch('/monitores/me/desativar')
 }
