@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import logo from '../assets/img/logo/logo.png'
 import BotaoSair from './auth/BotaoSair'
 import ModalSair from './auth/ModalSair'
@@ -114,6 +114,13 @@ export default function SidebarMenu({ id, label, itens, aberto, onFechar, botaoF
               <p className="truncate text-xs text-[#7E8B81]">{usuario.email}</p>
             </div>
           )}
+          <Link
+            to="/"
+            className="flex items-center gap-2 w-full rounded-lg border border-[#d5e2d2] bg-white/60 px-3 py-2 mb-2 text-left text-sm font-semibold  transition hover:bg-white cursor-pointer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-list preview-icon"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 4h7"/><path d="M14 9h7"/><path d="M14 15h7"/><path d="M14 20h7"/></svg>
+            Página inicial
+          </Link>
           <BotaoSair onClick={() => setModalOpen(true)} />
         </div>
       </aside>
